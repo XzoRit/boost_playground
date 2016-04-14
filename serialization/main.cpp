@@ -7,6 +7,9 @@
 
 int main(int argc, char *argv[])
 {
+  using boost::archive::text_oarchive;
+  using boost::archive::text_iarchive;
+  
   std::cout << "\nboost_serialization\n\n";
     
   std::ofstream out("ar");
@@ -17,17 +20,20 @@ int main(int argc, char *argv[])
     o << gps;
   }
 
+  {
   std::ifstream in("ar");
   const std::string archiveData = std::string(std::istreambuf_iterator<char>(in),
-					      std::istreambuf_iterator<char>());
+  					      std::istreambuf_iterator<char>());
   std::cout << "data in archive\n";
   std::cout << archiveData << '\n';
+  }
+  std::ifstream in("ar");
   GpsPosition newGps;
   {
-    boost::archive::text_iarchive i(in);
+    text_iarchive i(in);
     i >> newGps;
+    std::cout << "read back from file newGps = " << newGps << '\n';
   }
-  std::cout << "read back from file newGps = " << newGps << '\n';
 
   return 0;
 }
