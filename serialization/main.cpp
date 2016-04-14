@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <cassert>
 
 int main(int argc, char *argv[])
 {
@@ -21,11 +22,11 @@ int main(int argc, char *argv[])
   }
 
   {
-  std::ifstream in("ar");
-  const std::string archiveData = std::string(std::istreambuf_iterator<char>(in),
-  					      std::istreambuf_iterator<char>());
-  std::cout << "data in archive\n";
-  std::cout << archiveData << '\n';
+    std::ifstream in("ar");
+    const std::string archiveData = std::string(std::istreambuf_iterator<char>(in),
+						std::istreambuf_iterator<char>());
+    std::cout << "data in archive\n";
+    std::cout << archiveData << '\n';
   }
   std::ifstream in("ar");
   GpsPosition newGps;
@@ -35,5 +36,7 @@ int main(int argc, char *argv[])
     std::cout << "read back from file newGps = " << newGps << '\n';
   }
 
+  assert(gps == newGps);
+  
   return 0;
 }

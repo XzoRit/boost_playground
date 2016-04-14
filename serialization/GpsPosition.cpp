@@ -27,6 +27,18 @@ float GpsPosition::seconds() const
   return m_seconds;
 }
 
+bool operator==(const GpsPosition& lhs, const GpsPosition& rhs)
+{
+  return ((lhs.degrees() == rhs.degrees())
+    && (lhs.minutes() == rhs.minutes())
+    && (lhs.seconds() == rhs.seconds()));
+}
+
+bool operator!=(const GpsPosition& lhs, const GpsPosition& rhs)
+{
+  return !(lhs == rhs);
+}
+
 std::ostream& operator<<(std::ostream& o, const GpsPosition& gps)
 {
   o << "d:" << gps.degrees()

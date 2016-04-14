@@ -29,4 +29,6 @@ private:
   float m_seconds;
 };
 
+bool operator==(const GpsPosition&, const GpsPosition&);
+bool operator!=(const GpsPosition&, const GpsPosition&);
 std::ostream& operator<<(std::ostream&, const GpsPosition&);
