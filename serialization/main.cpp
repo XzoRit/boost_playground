@@ -1,8 +1,8 @@
 #include "GpsPosition.hpp"
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -41,9 +41,12 @@ int main(int argc, char *argv[])
 {
   using boost::archive::text_oarchive;
   using boost::archive::text_iarchive;
+  using boost::archive::binary_oarchive;
+  using boost::archive::binary_iarchive;
   
   std::cout << "\nboost_serialization\n\n";
 
+  {
   const GpsPosition gps(1, 2, 3.0f);
   std::cout << "about to save gps = " << gps << '\n';
   save<text_oarchive>("ar", gps);
@@ -51,6 +54,17 @@ int main(int argc, char *argv[])
   const GpsPosition newGps = load<text_iarchive>("ar");
   std::cout << "loaded newGps = " << newGps << '\n';
   assert(gps == newGps);
+  }
+  
+  {
+  const GpsPosition gps(1, 2, 3.0f);
+  std::cout << "about to save gps = " << gps << '\n';
+  save<binary_oarchive>("ar", gps);
+  printArchive("ar");
+  const GpsPosition newGps = load<binary_iarchive>("ar");
+  std::cout << "loaded newGps = " << newGps << '\n';
+  assert(gps == newGps);
+  }
   
   return 0;
 }
