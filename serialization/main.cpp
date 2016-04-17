@@ -63,6 +63,12 @@ namespace xzr
     {
       this->delimiter = boost::archive::basic_text_oarchive<Archive>::space;
     }
+
+    template<class T>
+    void save(const T & t){
+        this->newtoken();
+        basic_text_oprimitive<std::ostream>::save(t);
+    }
   };
   
   class string_oarchive
@@ -73,12 +79,6 @@ namespace xzr
       : string_oarchive_impl<string_oarchive>(str, flags)
       , m_stream(str)
     {}
-
-    template<class T>
-    void save(const T & t){
-        this->newtoken();
-        basic_text_oprimitive<std::ostream>::save(t);
-    }
   private:
     std::ostream& m_stream;
   };
