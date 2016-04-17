@@ -15,6 +15,7 @@ void save(const std::string& name, const GpsPosition& gps)
   std::ofstream oFile(name);
   Archive ar(oFile);
   ar << gps;
+  assert(gps.serialized());
 }
 
 template<class Archive>
@@ -26,6 +27,7 @@ GpsPosition load(const std::string& name)
     Archive i(in);
     i >> newGps;
   }
+  assert(newGps.serialized());
   return newGps;
 }
 
@@ -45,6 +47,7 @@ GpsPosition saveLoad(const std::string& name, const GpsPosition& gps)
   printArchive(name);
   const GpsPosition newGps = load<IArchive>(name);
   return newGps;
+  assert(gps == newGps);
 }
 
 namespace xzr
@@ -137,31 +140,18 @@ int main(int argc, char *argv[])
   {
     const GpsPosition gps(1, 2, 3.0f);
     const GpsPosition newGps = saveLoad<text_oarchive, text_iarchive>("tar", gps);
-    assert(gps == newGps);
   }
   std::cout << "\nbinary_archive\n";
   {
     const GpsPosition gps(1, 2, 3.0f);
     const GpsPosition newGps = saveLoad<binary_oarchive, binary_iarchive>("bar", gps);
-    assert(gps == newGps);
   }
   std::cout << "\nxzr::string_archive\n";
   {
-    const GpsPosition gps(1, 2, 3.0f);
     {
-      std::ofstream str("sar");
-      xzr::string_oarchive oar(str);
-      oar & gps;
+      const GpsPosition gps(1, 2, 3.0f);
+      const GpsPosition newGps = saveLoad<xzr::string_oarchive, xzr::string_iarchive>("sar", gps);
     }
-    assert(gps.serialized());
-    GpsPosition newGps;
-    {
-      std::ifstream str("sar");
-      xzr::string_iarchive iar(str);
-      iar & newGps;
-    }
-    assert(newGps.serialized());
-    assert(newGps == gps);
   }
   
   return 0;
