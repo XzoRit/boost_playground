@@ -68,7 +68,7 @@ namespace xzr
     }
 
     template<class T>
-    void save(const T & t){
+    void save(const T& t){
         this->newtoken();
         basic_text_oprimitive<std::ostream>::save(t);
     }
@@ -119,6 +119,10 @@ namespace xzr
 
 // BOOST_CLASS_TRACKING(GpsPosition, boost::serialization::track_never)
 
+#include <boost/iostreams/device/back_inserter.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/range/iterator_range.hpp>
+
 int main(int argc, char *argv[])
 {
   using boost::archive::text_oarchive;
@@ -151,6 +155,28 @@ int main(int argc, char *argv[])
     {
       const GpsPosition gps(1, 2, 3.0f);
       const GpsPosition newGps = saveLoad<xzr::string_oarchive, xzr::string_iarchive>("sar", gps);
+    }
+    std::cout << "serialize/deserialize into string\n";
+    {
+      namespace io = boost::iostreams;
+      const GpsPosition gps(1, 2, 3.0f);
+      std::string str;
+      {
+	io::filtering_ostream out(io::back_inserter(str));
+	xzr::string_oarchive ar(out);
+	ar & gps;
+	assert(gps.serialized());
+	out.flush();
+	std::cout << "data in archive\n" << str << '\n';
+      }
+      {
+	io::filtering_istream in(boost::make_iterator_range(str));
+	xzr::string_iarchive ar(in);
+	GpsPosition newGps;
+	ar & newGps;
+	assert(newGps.serialized());
+	assert(gps == newGps);
+      }
     }
   }
   
