@@ -122,13 +122,18 @@ int main(int argc, char *argv[])
   using boost::archive::text_iarchive;
   using boost::archive::binary_oarchive;
   using boost::archive::binary_iarchive;
+
+  using boost::serialization::implementation_level;
+  using boost::serialization::tracking_level;
   
   std::cout << "\nboost_serialization\n\n";
   
-  std::cout << boost::serialization::implementation_level<GpsPosition>::value << '#'
-	    << boost::serialization::tracking_level<GpsPosition>::value << '\n';
+  std::cout << "GpsPosition implementation_level = "
+	    << implementation_level<GpsPosition>::value << '\n'
+	    << "GpsPosition tracking_level = "
+	    << tracking_level<GpsPosition>::value << '\n';
 
-  std::cout << "text_archive\n";
+  std::cout << "\ntext_archive\n";
   {
     const GpsPosition gps(1, 2, 3.0f);
     const GpsPosition newGps = saveLoad<text_oarchive, text_iarchive>("tar", gps);
