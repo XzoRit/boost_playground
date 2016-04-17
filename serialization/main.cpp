@@ -55,14 +55,13 @@ namespace xzr
     , public boost::archive::basic_text_oarchive<Archive>
   {
   protected:
-    // friend class boost::archive::detail::interface_oarchive<Archive>;
-    // friend class boost::archive::basic_text_oarchive<Archive>;
     friend class boost::archive::save_access;
   public:
     string_oarchive_impl(std::ostream& str, unsigned int flags)
       : boost::archive::basic_text_oprimitive<std::ostream>(str, flags)
       , boost::archive::basic_text_oarchive<Archive>(flags)
     {
+      this->delimiter = boost::archive::basic_text_oarchive<Archive>::space;
     }
   };
   
@@ -74,35 +73,48 @@ namespace xzr
       : string_oarchive_impl<string_oarchive>(str, flags)
       , m_stream(str)
     {}
+
+    template<class T>
+    void save(const T & t){
+        this->newtoken();
+        basic_text_oprimitive<std::ostream>::save(t);
+    }
   private:
     std::ostream& m_stream;
   };
 
+  template<class Archive>
+  class string_iarchive_impl
+    : public boost::archive::basic_text_iprimitive<std::istream>
+    , public boost::archive::basic_text_iarchive<Archive>
+  {
+  protected:
+    friend class boost::archive::load_access;
+  public:
+    string_iarchive_impl(std::istream& str, unsigned int flags = 0)
+      : boost::archive::basic_text_iprimitive<std::istream>(str, true)
+      , boost::archive::basic_text_iarchive<Archive>(flags)
+    {
+    }
+  };
+  
   class string_iarchive
+    : public string_iarchive_impl<string_iarchive>
   {
   public:
-    typedef boost::mpl::bool_<false> is_saving; 
-    typedef boost::mpl::bool_<true> is_loading;
-
-    template<class T>
-    string_iarchive& operator>>(T& t)
-    {
-      return *this;
-    }
-    
-    template<class T>
-    string_iarchive& operator&(const T& t)
-    {
-      return *this >> t;
-    }
-    
     string_iarchive(std::istream& str)
-      : m_stream(str)
+      : string_iarchive_impl<string_iarchive>(str)
+      , m_stream(str)
     {}
   private:
     std::istream& m_stream;
   };
 }
+
+#include <boost/archive/impl/basic_text_oarchive.ipp>
+#include <boost/archive/impl/basic_text_iarchive.ipp>
+
+// BOOST_CLASS_TRACKING(GpsPosition, boost::serialization::track_never)
 
 int main(int argc, char *argv[])
 {
@@ -112,6 +124,10 @@ int main(int argc, char *argv[])
   using boost::archive::binary_iarchive;
   
   std::cout << "\nboost_serialization\n\n";
+  
+  std::cout << boost::serialization::implementation_level<GpsPosition>::value << '#'
+	    << boost::serialization::tracking_level<GpsPosition>::value << '\n';
+
   std::cout << "text_archive\n";
   {
     const GpsPosition gps(1, 2, 3.0f);
@@ -127,11 +143,20 @@ int main(int argc, char *argv[])
   std::cout << "\nxzr::string_archive\n";
   {
     const GpsPosition gps(1, 2, 3.0f);
-    std::stringstream str;
-    xzr::string_oarchive oar(str);
-    oar & gps;
+    {
+      std::ofstream str("sar");
+      xzr::string_oarchive oar(str);
+      oar & gps;
+    }
     assert(gps.serialized());
-    std::cout << str.str() << '\n';
+    GpsPosition newGps;
+    {
+      std::ifstream str("sar");
+      xzr::string_iarchive iar(str);
+      iar & newGps;
+    }
+    assert(newGps.serialized());
+    assert(newGps == gps);
   }
   
   return 0;
