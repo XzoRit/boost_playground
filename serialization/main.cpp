@@ -7,6 +7,7 @@
 #include <iostream>
 #include <iterator>
 #include <cassert>
+#include <sstream>
 
 template<class Archive>
 void save(const std::string& name, const GpsPosition& gps)
@@ -40,12 +41,66 @@ void printArchive(const std::string& name)
 template<class OArchive, class IArchive>
 GpsPosition saveLoad(const std::string& name, const GpsPosition& gps)
 {
-    std::cout << "about to save gps = " << gps << '\n';
-    save<OArchive>(name, gps);
-    printArchive(name);
-    const GpsPosition newGps = load<IArchive>(name);
-    std::cout << "loaded newGps = " << newGps << '\n';
-    return newGps;
+  std::cout << "about to save gps = " << gps << '\n';
+  save<OArchive>(name, gps);
+  printArchive(name);
+  const GpsPosition newGps = load<IArchive>(name);
+  std::cout << "loaded newGps = " << newGps << '\n';
+  return newGps;
+}
+
+namespace xzr
+{
+  class string_oarchive
+  {
+  public:
+    typedef boost::mpl::bool_<true> is_saving; 
+    typedef boost::mpl::bool_<false> is_loading;
+
+    template<class T>
+    string_oarchive& operator<<(const T& t)
+    {
+      m_stream << t;
+      return *this;
+    }
+    
+    template<class T>
+    string_oarchive& operator&(const T& t)
+    {
+      return *this << t;
+    }
+    
+    string_oarchive(std::ostream& str, unsigned int flags = 0)
+      : m_stream(str)
+    {}
+  private:
+    std::ostream& m_stream;
+  };
+
+  class string_iarchive
+  {
+  public:
+    typedef boost::mpl::bool_<false> is_saving; 
+    typedef boost::mpl::bool_<true> is_loading;
+
+    template<class T>
+    string_iarchive& operator>>(T& t)
+    {
+      return *this;
+    }
+    
+    template<class T>
+    string_iarchive& operator&(const T& t)
+    {
+      return *this >> t;
+    }
+    
+    string_iarchive(std::istream& str)
+      : m_stream(str)
+    {}
+  private:
+    std::istream& m_stream;
+  };
 }
 
 int main(int argc, char *argv[])
@@ -67,6 +122,12 @@ int main(int argc, char *argv[])
     const GpsPosition gps(1, 2, 3.0f);
     const GpsPosition newGps = saveLoad<binary_oarchive, binary_iarchive>("bar", gps);
     assert(gps == newGps);
+  }
+  std::cout << "\nxzr::string_archive\n";
+  {
+    const GpsPosition gps(1, 2, 3.0f);
+    std::stringstream str;
+    xzr::string_oarchive oar(str);
   }
   
   return 0;
