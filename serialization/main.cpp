@@ -41,11 +41,9 @@ void printArchive(const std::string& name)
 template<class OArchive, class IArchive>
 GpsPosition saveLoad(const std::string& name, const GpsPosition& gps)
 {
-  std::cout << "about to save gps = " << gps << '\n';
   save<OArchive>(name, gps);
   printArchive(name);
   const GpsPosition newGps = load<IArchive>(name);
-  std::cout << "loaded newGps = " << newGps << '\n';
   return newGps;
 }
 
@@ -60,7 +58,6 @@ namespace xzr
     template<class T>
     string_oarchive& operator<<(const T& t)
     {
-      m_stream << t;
       return *this;
     }
     

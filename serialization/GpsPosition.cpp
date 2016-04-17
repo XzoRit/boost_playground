@@ -38,12 +38,3 @@ bool operator!=(const GpsPosition& lhs, const GpsPosition& rhs)
 {
   return !(lhs == rhs);
 }
-
-std::ostream& operator<<(std::ostream& o, const GpsPosition& gps)
-{
-  o << "d:" << gps.degrees()
-    << "m:" << gps.minutes()
-    << "s:" << gps.seconds();
-
-  return o;
-}

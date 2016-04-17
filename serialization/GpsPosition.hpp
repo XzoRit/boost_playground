@@ -1,7 +1,6 @@
 #pragma once
 
 #include <boost/serialization/access.hpp>
-#include <ostream>
 
 class GpsPosition
 {
@@ -31,4 +30,3 @@ private:
 
 bool operator==(const GpsPosition&, const GpsPosition&);
 bool operator!=(const GpsPosition&, const GpsPosition&);
-std::ostream& operator<<(std::ostream&, const GpsPosition&);
