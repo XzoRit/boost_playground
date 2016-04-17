@@ -11,6 +11,7 @@ public:
   int degrees() const;
   int minutes() const;
   float seconds() const;
+  bool serialized() const;
 
 private:
   friend class boost::serialization::access;
@@ -21,11 +22,13 @@ private:
     ar & m_degrees;
     ar & m_minutes;
     ar & m_seconds;
+    m_serialized = true;
   }
   
   int m_degrees;
   int m_minutes;
   float m_seconds;
+  bool m_serialized;
 };
 
 bool operator==(const GpsPosition&, const GpsPosition&);

@@ -49,26 +49,30 @@ GpsPosition saveLoad(const std::string& name, const GpsPosition& gps)
 
 namespace xzr
 {
+  template<class Archive>
+  class string_oarchive_impl
+    : public boost::archive::basic_text_oprimitive<std::ostream>
+    , public boost::archive::basic_text_oarchive<Archive>
+  {
+  protected:
+    // friend class boost::archive::detail::interface_oarchive<Archive>;
+    // friend class boost::archive::basic_text_oarchive<Archive>;
+    friend class boost::archive::save_access;
+  public:
+    string_oarchive_impl(std::ostream& str, unsigned int flags)
+      : boost::archive::basic_text_oprimitive<std::ostream>(str, flags)
+      , boost::archive::basic_text_oarchive<Archive>(flags)
+    {
+    }
+  };
+  
   class string_oarchive
+    : public string_oarchive_impl<string_oarchive>
   {
   public:
-    typedef boost::mpl::bool_<true> is_saving; 
-    typedef boost::mpl::bool_<false> is_loading;
-
-    template<class T>
-    string_oarchive& operator<<(const T& t)
-    {
-      return *this;
-    }
-    
-    template<class T>
-    string_oarchive& operator&(const T& t)
-    {
-      return *this << t;
-    }
-    
     string_oarchive(std::ostream& str, unsigned int flags = 0)
-      : m_stream(str)
+      : string_oarchive_impl<string_oarchive>(str, flags)
+      , m_stream(str)
     {}
   private:
     std::ostream& m_stream;
@@ -125,6 +129,9 @@ int main(int argc, char *argv[])
     const GpsPosition gps(1, 2, 3.0f);
     std::stringstream str;
     xzr::string_oarchive oar(str);
+    oar & gps;
+    assert(gps.serialized());
+    std::cout << str.str() << '\n';
   }
   
   return 0;

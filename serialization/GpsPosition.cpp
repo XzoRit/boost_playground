@@ -4,12 +4,14 @@ GpsPosition::GpsPosition()
   : m_degrees(0)
   , m_minutes(0)
   , m_seconds(0.0f)
+  , m_serialized(false)
 {}
 
 GpsPosition::GpsPosition(int d, int m, float s)
   : m_degrees(d)
   , m_minutes(m)
   , m_seconds(s)
+  , m_serialized(false)
 {}
 
 int GpsPosition::degrees() const
@@ -25,6 +27,11 @@ int GpsPosition::minutes() const
 float GpsPosition::seconds() const
 {
   return m_seconds;
+}
+
+bool GpsPosition::serialized() const
+{
+  return m_serialized;
 }
 
 bool operator==(const GpsPosition& lhs, const GpsPosition& rhs)
