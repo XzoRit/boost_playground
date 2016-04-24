@@ -66,6 +66,9 @@ int main(int argc, char *argv[])
   using boost::archive::binary_oarchive;
   using boost::archive::binary_iarchive;
 
+  using xzr::archive::string_oarchive;
+  using xzr::archive::string_iarchive;
+
   using boost::serialization::implementation_level;
   using boost::serialization::tracking_level;
   
@@ -88,32 +91,30 @@ int main(int argc, char *argv[])
   }
   std::cout << "\nxzr::archive::string_archive\n";
   {
-    using namespace xzr::archive;
-    {
       const GpsPosition gps(1, 2, 3.0f);
       const GpsPosition newGps = saveLoad<string_oarchive, string_iarchive>("sar", gps);
-    }
-    std::cout << "serialize/deserialize into string\n";
+  }
+
+  std::cout << "serialize/deserialize into string\n";
+  {
+    namespace io = boost::iostreams;
+    const GpsPosition gps(1, 2, 3.0f);
+    std::string str;
     {
-      namespace io = boost::iostreams;
-      const GpsPosition gps(1, 2, 3.0f);
-      std::string str;
-      {
-	io::filtering_ostream out(io::back_inserter(str));
-	string_oarchive ar(out);
-	ar & gps;
-	assert(gps.serialized());
-	out.flush();
-	std::cout << "data in archive\n" << str << '\n';
-      }
-      {
-	io::filtering_istream in(boost::make_iterator_range(str));
-	string_iarchive ar(in);
-	GpsPosition newGps;
-	ar & newGps;
-	assert(newGps.serialized());
-	assert(gps == newGps);
-      }
+      io::filtering_ostream out(io::back_inserter(str));
+      string_oarchive ar(out);
+      ar & gps;
+      assert(gps.serialized());
+      out.flush();
+      std::cout << "data in archive\n" << str << '\n';
+    }
+    {
+      io::filtering_istream in(boost::make_iterator_range(str));
+      string_iarchive ar(in);
+      GpsPosition newGps;
+      ar & newGps;
+      assert(newGps.serialized());
+      assert(gps == newGps);
     }
   }
   
