@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/serialization/access.hpp>
+#include <boost/serialization/nvp.hpp>
 
 class GpsPosition
 {
@@ -19,9 +20,9 @@ private:
   template<class Archive>
   void serialize(Archive& ar, const unsigned int version)
   {
-    ar & m_degrees;
-    ar & m_minutes;
-    ar & m_seconds;
+    ar & BOOST_SERIALIZATION_NVP(m_degrees);
+    ar & BOOST_SERIALIZATION_NVP(m_minutes);
+    ar & BOOST_SERIALIZATION_NVP(m_seconds);
     m_serialized = true;
   }
   
