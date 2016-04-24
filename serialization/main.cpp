@@ -5,6 +5,7 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
+#include <../share/doc/boost/libs/serialization/example/simple_log_archive.hpp>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -88,6 +89,12 @@ int main(int argc, char *argv[])
   {
     const GpsPosition gps(1, 2, 3.0f);
     const GpsPosition newGps = saveLoad<binary_oarchive, binary_iarchive>("bar", gps);
+  }
+  std::cout << "\nsimple_log_archive\n";
+  {
+      const GpsPosition gps(1, 2, 3.0f);
+      save<simple_log_archive>("lar", gps);
+      printArchive("lar");
   }
   std::cout << "\nxzr::archive::string_archive\n";
   {
