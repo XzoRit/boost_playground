@@ -6,6 +6,9 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <../share/doc/boost/libs/serialization/example/simple_log_archive.hpp>
+#include <boost/iostreams/device/back_inserter.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/range/iterator_range.hpp>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -52,13 +55,6 @@ GpsPosition saveLoad(const std::string& name, const GpsPosition& gps)
   return newGps;
   assert(gps == newGps);
 }
-
-
-// BOOST_CLASS_TRACKING(GpsPosition, boost::serialization::track_never)
-
-#include <boost/iostreams/device/back_inserter.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/range/iterator_range.hpp>
 
 int main(int argc, char *argv[])
 {
