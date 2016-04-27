@@ -52,8 +52,8 @@ GpsPosition saveLoad(const std::string& name, const GpsPosition& gps)
   save<OArchive>(name, gps);
   printArchive(name);
   const GpsPosition newGps = load<IArchive>(name);
-  return newGps;
   assert(gps == newGps);
+  return newGps;
 }
 
 int main(int argc, char *argv[])
