@@ -27,7 +27,7 @@ namespace xzr
       void load_end(const char* name)
       {
       }
-      
+
       template<class T>
       void load(T& t)
       {
