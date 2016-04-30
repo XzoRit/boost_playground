@@ -13,5 +13,7 @@ add_executable(boost_serialization
   GpsPosition.cpp
   GpsPosition.hpp
   string_oarchive.hpp
-  string_iarchive.hpp)
+  string_iarchive.hpp
+  bin_oarchive.hpp
+  bin_iarchive.hpp)
 target_link_libraries(boost_serialization ${Boost_LIBRARIES})
