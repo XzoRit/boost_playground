@@ -15,5 +15,6 @@ add_executable(boost_serialization
   string_oarchive.hpp
   string_iarchive.hpp
   bin_oarchive.hpp
-  bin_iarchive.hpp)
+  bin_iarchive.hpp
+  binary_data_archive.hpp)
 target_link_libraries(boost_serialization ${Boost_LIBRARIES})

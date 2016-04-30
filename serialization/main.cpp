@@ -3,6 +3,7 @@
 #include "string_oarchive.hpp"
 #include "bin_iarchive.hpp"
 #include "bin_oarchive.hpp"
+#include "binary_data_archive.hpp"
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
@@ -70,6 +71,10 @@ int main(int argc, char *argv[])
   using xzr::archive::bin_oarchive;
   using xzr::archive::bin_iarchive;
 
+  using RTT::marsh::binary_data_oarchive;
+  using RTT::marsh::binary_data_iarchive;
+
+
   using boost::serialization::implementation_level;
   using boost::serialization::tracking_level;
   
@@ -105,6 +110,11 @@ int main(int argc, char *argv[])
   {
       const GpsPosition gps(1, 2, 3.0f);
       const GpsPosition newGps = saveLoad<bin_oarchive, bin_iarchive>("binar", gps);
+  }
+  std::cout << "\nRTT::marsh::binary_data_archive\n";
+  {
+      const GpsPosition gps(1, 2, 3.0f);
+      const GpsPosition newGps = saveLoad<binary_data_oarchive, binary_data_iarchive>("bindatar", gps);
   }
 
   std::cout << "serialize/deserialize into string\n";
