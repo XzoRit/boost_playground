@@ -5,7 +5,7 @@ set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
 
 find_package(Boost 1.59 REQUIRED COMPONENTS serialization)
-include_directories(${Boost_INCLUDE_DIRS})
+include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 add_executable(boost_serialization
@@ -18,3 +18,4 @@ add_executable(boost_serialization
   bin_iarchive.hpp
   binary_data_archive.hpp)
 target_link_libraries(boost_serialization ${Boost_LIBRARIES})
+
