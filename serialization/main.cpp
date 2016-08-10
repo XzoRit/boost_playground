@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
       const GpsPosition newGps = saveLoad<binary_data_oarchive, binary_data_iarchive>("bindatar", gps);
   }
 
-  std::cout << "serialize/deserialize into string\n";
+  std::cout << "\nserialize/deserialize into string\n";
   {
     namespace io = boost::iostreams;
     const GpsPosition gps(1, 2, 3.0f);
