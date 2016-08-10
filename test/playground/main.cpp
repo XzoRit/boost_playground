@@ -51,6 +51,15 @@ struct reserve_vector_bigger : public init_vector
     const std::size_t bigger_capacity{0};
 };
 
+struct reserve_vector_smaller_again : public reserve_vector_bigger
+{
+    reserve_vector_smaller_again()
+	{
+	    v.reserve(bigger_capacity - bigger_capacity);
+	}
+    ~reserve_vector_smaller_again() {}
+};
+
 BOOST_AUTO_TEST_SUITE(vector)
 
 BOOST_FIXTURE_TEST_CASE(size_and_capacity_after_init, init_vector)
@@ -78,6 +87,12 @@ BOOST_FIXTURE_TEST_CASE(size_and_capacity_not_changed_after_reserve_smaller, res
 }
 
 BOOST_FIXTURE_TEST_CASE(size_not_changing_but_capacity_after_reserve_bigger, reserve_vector_bigger)
+{
+    BOOST_TEST(v.size() == init_size);
+    BOOST_TEST(v.capacity() >= bigger_capacity);
+}
+
+BOOST_FIXTURE_TEST_CASE(size_and_capacity_not_changed_after_reserve_smaller_again, reserve_vector_smaller_again)
 {
     BOOST_TEST(v.size() == init_size);
     BOOST_TEST(v.capacity() >= bigger_capacity);
