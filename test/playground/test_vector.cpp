@@ -47,12 +47,12 @@ struct reserve_vector_smaller : public init_vector
 {
     reserve_vector_smaller()
     {
-        BOOST_TEST_MESSAGE("resize_vector_smaller");
+        BOOST_TEST_MESSAGE("reserve_vector_smaller");
         v.reserve(init_size - init_size);
     }
     ~reserve_vector_smaller()
     {
-        BOOST_TEST_MESSAGE("~resize_vector_smaller");
+        BOOST_TEST_MESSAGE("~reserve_vector_smaller");
     }
 };
 
