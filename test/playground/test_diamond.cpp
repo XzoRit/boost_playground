@@ -24,12 +24,8 @@ auto num_of_letters(char c)
 
 auto letters(int num)
 {
-  const auto chars{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"s.substr(0, num)};
-  auto seq{vector<string>{}};
-  for(auto&& c : chars)
-    {
-      seq.push_back(string{c});
-    }
+  auto seq{vector<string>(num, "")};
+  iota(begin(seq), end(seq), 'A');
   return seq;
 }
 
