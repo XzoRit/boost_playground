@@ -50,23 +50,34 @@ auto insert_spaces(const vector<string>& lines)
     auto spaced_lines{vector<string>{}};
     for(size_t i{0}, j{lines.size() - 1}; i < lines.size(); ++i, --j)
     {
-      const auto spaces_before{string(j, ' ')};
-      const auto spaces_after{string(i, ' ')};
-      spaced_lines.push_back(spaces_before + lines[i] + spaces_after);
+        const auto spaces_before{string(j, ' ')};
+        const auto spaces_after{string(i, ' ')};
+        spaced_lines.push_back(spaces_before + lines[i] + spaces_after);
     }
     return spaced_lines;
 }
 
 auto join(const vector<string>& lines)
 {
-    return accumulate(begin(lines), end(lines), string{""});
+    return accumulate(
+               begin(lines), end(lines),
+               string{""},
+               [](auto a, auto b)
+    {
+        return a + b +'\n';
+    });
 }
 }
 
 string create(char c)
 {
     using namespace impl;
-    return join(append_reversed(append_reversed_lines(insert_spaces(letters(num_of_letters(c))))));
+    return join(
+               append_reversed(
+                   append_reversed_lines(
+                       insert_spaces(
+                           letters(
+                               num_of_letters(c))))));
 }
 }
 
@@ -78,17 +89,18 @@ BOOST_AUTO_TEST_SUITE(test_diamond)
 
 BOOST_AUTO_TEST_CASE(test_create)
 {
-    BOOST_TEST(diamond::create('A') == "A");
+    BOOST_TEST(diamond::create('A') ==
+               "A\n");
     BOOST_TEST(diamond::create('B') ==
-               " A "
-               "B B"
-               " A ");
+               " A \n"
+               "B B\n"
+               " A \n");
     BOOST_TEST(diamond::create('C') ==
-               "  A  "
-               " B B "
-               "C   C"
-               " B B "
-               "  A  ");
+               "  A  \n"
+               " B B \n"
+               "C   C\n"
+               " B B \n"
+               "  A  \n");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
