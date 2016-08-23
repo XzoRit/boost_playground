@@ -48,14 +48,13 @@ auto append_reversed_lines(const vector<string>& lines)
 auto insert_spaces(const vector<string>& lines)
 {
     auto spaced_lines{vector<string>{}};
-    for(size_t i{0}, j{lines.size()}; i < lines.size(); ++i, --j)
+    for(size_t i{0}, j{lines.size() - 1}; i < lines.size(); ++i, --j)
     {
-        spaced_lines.push_back(
-            string(j-1, ' ') +
-            lines[i][0] +
-            string(i, ' '));
+      const auto spaces_before{string(j, ' ')};
+      const auto spaces_after{string(i, ' ')};
+      spaced_lines.push_back(spaces_before + lines[i] + spaces_after);
     }
-    return append_reversed_lines(spaced_lines);
+    return spaced_lines;
 }
 
 auto join(const vector<string>& lines)
@@ -67,7 +66,7 @@ auto join(const vector<string>& lines)
 string create(char c)
 {
     using namespace impl;
-    return join(append_reversed(insert_spaces(letters(num_of_letters(c)))));
+    return join(append_reversed(append_reversed_lines(insert_spaces(letters(num_of_letters(c))))));
 }
 }
 
@@ -90,35 +89,6 @@ BOOST_AUTO_TEST_CASE(test_create)
                "C   C"
                " B B "
                "  A  ");
-}
-
-BOOST_AUTO_TEST_CASE(test_insert_spaces)
-{
-    using namespace diamond::impl;
-    {
-        const auto input{vector<string>{"A"}};
-        const auto expected{vector<string>{"A"}};
-        const auto actual{insert_spaces(input)};
-        BOOST_CHECK_EQUAL_COLLECTIONS(
-            begin(expected), end(expected),
-            begin(actual), end(actual));
-    }
-    {
-        const auto input{vector<string> {"A", "B"}};
-        const auto expected{vector<string> {" A ", "B B"}};
-        const auto actual{insert_spaces(input)};
-        BOOST_CHECK_EQUAL_COLLECTIONS(
-            begin(expected), end(expected),
-            begin(actual), end(actual));
-    }
-    {
-        const auto input{vector<string> {"A", "B", "C"}};
-        const auto expected{vector<string> {"  A  ", " B B ", "C   C"}};
-        const auto actual{insert_spaces(input)};
-        BOOST_CHECK_EQUAL_COLLECTIONS(
-            begin(expected), end(expected),
-            begin(actual), end(actual));
-    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
