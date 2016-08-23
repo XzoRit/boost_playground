@@ -29,20 +29,24 @@ auto letters(int num)
     return seq;
 }
 
-auto append_reversed(const vector<string>& letters)
+auto mirror_horizontal(const vector<string>& letters)
 {
     auto reversed{vector<string>(next(rbegin(letters)), rend(letters))};
     reversed.insert(begin(reversed), begin(letters), end(letters));
     return reversed;
 }
 
-auto append_reversed_lines(const vector<string>& lines)
+auto mirror_vertical(const vector<string>& lines)
 {
     auto reversed_lines{vector<string>(lines.size())};
-    for(size_t i{0}; i < lines.size(); ++i)
+    transform(
+        begin(lines), end(lines),
+        begin(reversed_lines),
+        [](auto a)
+
     {
-        reversed_lines[i] = lines[i] + string{next(rbegin(lines[i])), rend(lines[i])};
-    }
+        return a + string{next(rbegin(a)), rend(a)};
+    });
     return reversed_lines;
 }
 auto insert_spaces(const vector<string>& lines)
@@ -64,7 +68,7 @@ auto join(const vector<string>& lines)
                string{""},
                [](auto a, auto b)
     {
-        return a + b +'\n';
+        return a + b + '\n';
     });
 }
 }
@@ -73,8 +77,8 @@ string create(char c)
 {
     using namespace impl;
     return join(
-               append_reversed(
-                   append_reversed_lines(
+               mirror_horizontal(
+                   mirror_vertical(
                        insert_spaces(
                            letters(
                                num_of_letters(c))))));
