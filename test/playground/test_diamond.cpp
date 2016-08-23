@@ -24,9 +24,9 @@ auto num_of_letters(char c)
 
 auto letters(int num)
 {
-  auto seq{vector<string>(num, "")};
-  iota(begin(seq), end(seq), 'A');
-  return seq;
+    auto seq{vector<string>(num, "")};
+    iota(begin(seq), end(seq), 'A');
+    return seq;
 }
 
 auto append_reversed(const vector<string>& letters)
@@ -36,9 +36,17 @@ auto append_reversed(const vector<string>& letters)
     return reversed;
 }
 
+auto append_reversed_lines(const vector<string>& lines)
+{
+    auto reversed_lines{vector<string>(lines.size())};
+    for(size_t i{0}; i < lines.size(); ++i)
+    {
+        reversed_lines[i] = lines[i] + string{next(rbegin(lines[i])), rend(lines[i])};
+    }
+    return reversed_lines;
+}
 auto insert_spaces(const vector<string>& lines)
 {
-    if(lines.size() == 1) return lines;
     auto spaced_lines{vector<string>{}};
     for(size_t i{0}, j{lines.size()}; i < lines.size(); ++i, --j)
     {
@@ -47,11 +55,7 @@ auto insert_spaces(const vector<string>& lines)
             lines[i][0] +
             string(i, ' '));
     }
-    for(size_t i{0}, j{lines.size()}; i < lines.size(); ++i, --j)
-    {
-        spaced_lines[i] = spaced_lines[i] + string{next(rbegin(spaced_lines[i])), rend(spaced_lines[i])};
-    }
-    return spaced_lines;
+    return append_reversed_lines(spaced_lines);
 }
 
 auto join(const vector<string>& lines)
@@ -77,15 +81,15 @@ BOOST_AUTO_TEST_CASE(test_create)
 {
     BOOST_TEST(diamond::create('A') == "A");
     BOOST_TEST(diamond::create('B') ==
-	       " A "
-	       "B B"
-	       " A ");
+               " A "
+               "B B"
+               " A ");
     BOOST_TEST(diamond::create('C') ==
-	       "  A  "
-	       " B B "
-	       "C   C"
-	       " B B "
-	       "  A  ");
+               "  A  "
+               " B B "
+               "C   C"
+               " B B "
+               "  A  ");
 }
 
 BOOST_AUTO_TEST_CASE(test_insert_spaces)
