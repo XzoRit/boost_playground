@@ -1,35 +1,39 @@
 #include <string>
 
+using namespace std;
 using namespace std::literals::string_literals;
 
 namespace diamond
 {
-namespace impl
-{
-int amount_from_char(char c);
-std::string letters(int amount);
+string create(char c);
 }
-std::string create(char c);
-}
+
+#include <algorithm>
+#include <iterator>
 
 namespace diamond
 {
 namespace impl
 {
-int amount_from_char(char c)
+auto num_of_letters(char c)
 {
-  return c - 'A' + 1;
+    return c - 'A' + 1;
 }
 
-std::string letters(int amount)
+auto letters(int num)
 {
-  return "ABCDEFGHIJKLMNOPQRSTUVWXYZ"s.substr(0, amount);
+    return "ABCDEFGHIJKLMNOPQRSTUVWXYZ"s.substr(0, num);
+}
+
+auto append_reversed(const std::string letters)
+{
+  return letters + string{next(rbegin(letters)), rend(letters)};
 }
 }
-std::string create(char c)
+string create(char c)
 {
-  using namespace impl;
-  return letters(amount_from_char(c));
+    using namespace impl;
+    return append_reversed(letters(num_of_letters(c)));
 }
 }
 
@@ -39,9 +43,9 @@ BOOST_AUTO_TEST_SUITE(diamond)
 
 BOOST_AUTO_TEST_CASE(test_diamond)
 {
-  BOOST_TEST(diamond::create('A') == "A");
-  BOOST_TEST(diamond::create('B') == "AB");
-  BOOST_TEST(diamond::create('C') == "ABC");
+    BOOST_TEST(diamond::create('A') == "A");
+    BOOST_TEST(diamond::create('B') == "ABA");
+    BOOST_TEST(diamond::create('C') == "ABCBA");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
