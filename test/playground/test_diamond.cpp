@@ -31,14 +31,14 @@ auto letters(int num)
 
 auto mirror_horizontal(const vector<string>& letters)
 {
-    auto reversed{vector<string>(next(rbegin(letters)), rend(letters))};
+    auto reversed{vector<string>{next(rbegin(letters)), rend(letters)}};
     reversed.insert(begin(reversed), begin(letters), end(letters));
     return reversed;
 }
 
 auto mirror_vertical(const vector<string>& lines)
 {
-    auto reversed_lines{vector<string>(lines.size())};
+    auto reversed_lines{vector<string>{lines.size()}};
     transform(
         begin(lines), end(lines),
         begin(reversed_lines),
@@ -49,6 +49,7 @@ auto mirror_vertical(const vector<string>& lines)
     });
     return reversed_lines;
 }
+
 auto insert_spaces(const vector<string>& lines)
 {
     auto spaced_lines{vector<string>{}};
