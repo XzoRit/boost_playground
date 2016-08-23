@@ -1,5 +1,5 @@
 exe test_playground
-    : main.cpp test_vector.cpp
+    : main.cpp test_vector.cpp test_diamond.cpp
     : <include>../../../boost : <cxxflags>-std=c++14 ;
     
 install install_test_playground
