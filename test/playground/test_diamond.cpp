@@ -17,26 +17,26 @@ namespace diamond
 {
 namespace impl
 {
-auto num_of_letters(char c)
+const auto num_of_letters = [](auto c)
 {
     return c - 'A' + 1;
-}
+};
 
-auto letters(int num)
+const auto letters = [](auto num)
 {
     auto seq{vector<string>(num, "")};
     iota(begin(seq), end(seq), 'A');
     return seq;
-}
+};
 
-auto mirror_horizontal(const vector<string>& letters)
+const auto mirror_horizontal = [](const auto& letters)
 {
     auto reversed{vector<string>{next(rbegin(letters)), rend(letters)}};
     reversed.insert(begin(reversed), begin(letters), end(letters));
     return reversed;
-}
+};
 
-auto mirror_vertical(const vector<string>& lines)
+const auto mirror_vertical = [](const auto& lines)
 {
     auto reversed_lines{vector<string>{lines.size()}};
     transform(
@@ -48,9 +48,9 @@ auto mirror_vertical(const vector<string>& lines)
         return a + string{next(rbegin(a)), rend(a)};
     });
     return reversed_lines;
-}
+};
 
-auto insert_spaces(const vector<string>& lines)
+const auto insert_spaces = [](const auto& lines)
 {
     auto spaced_lines{vector<string>{}};
     for(size_t i{0}, j{lines.size() - 1}; i < lines.size(); ++i, --j)
@@ -60,9 +60,9 @@ auto insert_spaces(const vector<string>& lines)
         spaced_lines.push_back(spaces_before + lines[i] + spaces_after);
     }
     return spaced_lines;
-}
+};
 
-auto join(const vector<string>& lines)
+const auto join = [](const auto& lines)
 {
     return accumulate(
                begin(lines), end(lines),
@@ -71,7 +71,7 @@ auto join(const vector<string>& lines)
     {
         return a + b + '\n';
     });
-}
+};
 }
 
 string create(char c)
