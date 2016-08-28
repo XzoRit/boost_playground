@@ -1,0 +1,5 @@
+project
+    : default-build debug
+    : build-dir ./build ;
+build-project hello ;
+build-project calculator ;

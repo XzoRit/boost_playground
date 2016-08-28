@@ -1,0 +1,6 @@
+lib calculator
+    : calculator.cpp
+    : <cxxflags>-std=c++1y ;
+install install_claculator
+    : calculator
+    : <location>../bin ;
