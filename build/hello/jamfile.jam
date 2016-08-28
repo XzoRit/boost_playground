@@ -1,7 +1,18 @@
+import testing ;
 
 exe hello
     : hello.cpp ../calculator
-    : <cxxflags>-std=c++1y <include>../calculator ;
+    : <cxxflags>-std=c++1y
+      <include>../calculator
+    ;
+
 install install_hello
     : hello
-    : <location>../bin ;
+    : <location>../bin
+    ;
+
+unit-test exec_hello
+    : hello
+    ;
+
+always exec_hello ;
