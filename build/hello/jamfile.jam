@@ -1,18 +1,21 @@
 import testing ;
 
-exe hello
-    : hello.cpp ../calculator
+exe hello.build
+    : hello.cpp ..//calculator/<link>static
     : <cxxflags>-std=c++1y
       <include>../calculator
     ;
 
-install install_hello
-    : hello
+install hello
+    : hello.build
     : <location>../bin
+      <install-dependencies>on
+      <install-type>EXE
+      <install-type>LIB
     ;
 
 unit-test exec_hello
-    : hello
+    : hello.build
     ;
 
 always exec_hello ;
