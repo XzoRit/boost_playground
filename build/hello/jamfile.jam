@@ -4,14 +4,13 @@ local calculator_folder = ../calculator ;
 
 local calculator_lib = $(calculator_folder)//calculator/<link>static ;
 
-local install_folder = ../bin ;
+local install_folder = ../build ;
 
 local sources = hello ;
 
 exe hello.build
     : $(sources).cpp $(calculator_lib)
-    : <cxxflags>-std=c++1y
-      <include>$(calculator_folder)
+    : <include>$(calculator_folder)
     ;
 
 install hello

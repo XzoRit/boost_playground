@@ -2,5 +2,4 @@ local sources = calculator ;
 
 lib calculator
     : $(sources).cpp
-    : <cxxflags>-std=c++1y
     ;
