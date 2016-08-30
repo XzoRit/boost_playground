@@ -1,4 +1,6 @@
+local sources = calculator ;
+
 lib calculator
-    : calculator.cpp
+    : $(sources).cpp
     : <cxxflags>-std=c++1y
     ;

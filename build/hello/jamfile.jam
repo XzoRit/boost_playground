@@ -1,14 +1,22 @@
 import testing ;
 
+local calculator_folder = ../calculator ;
+
+local calculator_lib = $(calculator_folder)//calculator/<link>static ;
+
+local install_folder = ../bin ;
+
+local sources = hello ;
+
 exe hello.build
-    : hello.cpp ..//calculator/<link>static
+    : $(sources).cpp $(calculator_lib)
     : <cxxflags>-std=c++1y
-      <include>../calculator
+      <include>$(calculator_folder)
     ;
 
 install hello
     : hello.build
-    : <location>../bin
+    : <location>$(install_folder)
       <install-dependencies>on
       <install-type>EXE
       <install-type>LIB
