@@ -1,0 +1,12 @@
+import testing ;
+
+exe di_playground
+    : main.cpp
+    : <include>../../../boost_di/include : <cxxflags>-std=c++14 ;
+    
+install install_di_playground
+    : di_playground
+    : <location>../bin ;
+
+unit-test exec_tests
+    : di_playground ;
