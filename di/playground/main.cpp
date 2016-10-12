@@ -37,7 +37,10 @@ private:
 class text_view: public iview
 {
 public:
-    void update() override {}
+    void update() override
+    {
+        cout << "text_view::update\n";
+    }
 };
 
 class model
@@ -84,11 +87,24 @@ private:
 
 int main()
 {
+    /* iview impl chosen at compile time
+      auto injector =
+          di::make_injector(
+              di::bind<iview>.to<gui_view>(),
+              di::bind<int>.to(42),
+              di::bind<string>.to("Hello!"));
+    */
+    /* iview impl chosen at runtime */
+    const auto use_gui_view = false;
     auto injector =
         di::make_injector(
-            di::bind<iview>.to<gui_view>(),
-            di::bind<int>.to(42),
-            di::bind<string>.to("Hello!"));
+            di::bind<iview>.to([&](const auto& injector) -> iview&
+    {
+        if(use_gui_view) return injector.template create<gui_view&>();
+        else return injector.template create<text_view&>();
+    }),
+    di::bind<int>.to(42),
+    di::bind<string>.to("Hello!"));
     auto a = injector.create<app>();
 
     a.run();
