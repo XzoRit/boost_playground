@@ -2,14 +2,14 @@ import testing ;
 
 local calculator_folder = ../calculator ;
 
-local calculator_lib = $(calculator_folder)//calculator/<link>static ;
+local calculator_lib = $(calculator_folder)//calculator ;
 
-local install_folder = ../build ;
+local install_folder = ../bin ;
 
 local sources = hello ;
 
 exe hello.build
-    : $(sources).cpp $(calculator_lib)
+    : $(sources).cpp $(calculator_lib) ../../../boost//program_options
     : <include>$(calculator_folder)
     ;
 
