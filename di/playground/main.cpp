@@ -2,6 +2,8 @@
 #include <string>
 #include <iostream>
 #include <cassert>
+#include <vector>
+#include <memory>
 
 using namespace std;
 namespace di = boost::di;
@@ -61,15 +63,37 @@ private:
     iview& view;
 };
 
-class user
-{};
+class iclient
+{
+public:
+    virtual void process() = 0;
+};
+
+class user : public iclient
+{
+public:
+    void process() override
+    {
+        cout << "user::process()\n";
+    }
+};
+
+class timer : public iclient
+{
+public:
+    void process() override
+    {
+        cout << "timer::process()\n";
+    }
+};
 
 class app
 {
 public:
-    app(const string& n, controller& c, user& u)
+    using clients = vector<unique_ptr<iclient>>;
+    app(const string& n, const clients& cs, controller& c)
         : ctrl(c)
-        , usr(u)
+        , cls(cs)
         , name(n)
     {
     }
@@ -77,11 +101,12 @@ public:
     void run()
     {
         cout << name << " app::run()\n";
+        for(auto& c : cls) c->process();
         ctrl.run();
     }
 private:
     controller& ctrl;
-    user& usr;
+    const clients& cls;
     string name;
 };
 
@@ -104,7 +129,9 @@ int main()
         else return injector.template create<text_view&>();
     }),
     di::bind<int>.to(42),
-    di::bind<string>.to("Hello!"));
+    di::bind<string>.to("Hello!"),
+    di::bind<iclient*[]>().to<user, timer>());
+
     auto a = injector.create<app>();
 
     a.run();
