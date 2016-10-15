@@ -46,7 +46,19 @@ public:
 };
 
 class model
-{};
+{
+public:
+  model(int size, double precision)
+  {}
+
+  // boost.di will pick the longest ctor by default
+  // this can be achived by this declaration
+  // model(int rows, int cols, ...)
+  // or by explicitly marking the ctor to be
+  // chosen by boost.di
+  BOOST_DI_INJECT(model, int rows, int cols)
+  {}
+};
 
 class controller
 {
