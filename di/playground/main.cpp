@@ -81,16 +81,26 @@ public:
 class timer : public iclient
 {
 public:
+    timer()
+    {
+        id = Id++;
+    }
+
     void process() override
     {
-        cout << "timer::process()\n";
+        cout << "timer::process() with id " << id << '\n';
     }
+private:
+    static int Id;
+    int id;
 };
+
+int timer::Id{0};
 
 class app
 {
 public:
-    using clients = vector<unique_ptr<iclient>>;
+    using clients = vector<shared_ptr<iclient>>;
     app(const string& n, const clients& cs, controller& c)
         : ctrl(c)
         , cls(cs)
@@ -113,14 +123,15 @@ private:
 int main()
 {
     /* iview impl chosen at compile time
-      auto injector =
-          di::make_injector(
-              di::bind<iview>.to<gui_view>(),
-              di::bind<int>.to(42),
-              di::bind<string>.to("Hello!"));
+    auto injector =
+        di::make_injector(
+            di::bind<iview>.to<gui_view>(),
+            di::bind<int>.to(42),
+            di::bind<string>.to("Hello!"),
+            di::bind<iclient*[]>().to<user, timer>());
     */
     /* iview impl chosen at runtime */
-    const auto use_gui_view = false;
+    const auto use_gui_view = true;
     auto injector =
         di::make_injector(
             di::bind<iview>.to([&](const auto& injector) -> iview&
@@ -128,9 +139,13 @@ int main()
         if(use_gui_view) return injector.template create<gui_view&>();
         else return injector.template create<text_view&>();
     }),
+    di::bind<timer>().in(di::unique),
+    // each time a timer is requested
+    // a new instance is created
+    di::bind<iclient*[]>().to<timer, user, timer>(),
     di::bind<int>.to(42),
-    di::bind<string>.to("Hello!"),
-    di::bind<iclient*[]>().to<user, timer>());
+    // di::bind<int>.to(123)[di::override],
+    di::bind<string>.to("Hello!"));
 
     auto a = injector.create<app>();
 
