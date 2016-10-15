@@ -45,19 +45,25 @@ public:
     }
 };
 
+const auto Rows = [] {};
+const auto Cols = [] {};
+
 class model
 {
 public:
-  model(int size, double precision)
-  {}
+    model(int size, double precision)
+    {}
 
-  // boost.di will pick the longest ctor by default
-  // this can be achived by this declaration
-  // model(int rows, int cols, ...)
-  // or by explicitly marking the ctor to be
-  // chosen by boost.di
-  BOOST_DI_INJECT(model, int rows, int cols)
-  {}
+    // boost.di will pick the longest ctor by default
+    // this can be achived by this declaration
+    // model(int rows, int cols, ...)
+    // or by explicitly marking the ctor to be
+    // chosen by boost.di
+    BOOST_DI_INJECT(model, (named = Rows) int rows, (named = Cols) int cols)
+    {
+        assert(rows == 6);
+        assert(cols == 8);
+    }
 };
 
 class controller
@@ -134,30 +140,36 @@ private:
 
 int main()
 {
-    /* iview impl chosen at compile time
-    auto injector =
-        di::make_injector(
-            di::bind<iview>.to<gui_view>(),
-            di::bind<int>.to(42),
-            di::bind<string>.to("Hello!"),
-            di::bind<iclient*[]>().to<user, timer>());
-    */
-    /* iview impl chosen at runtime */
+    // iview impl chosen at runtime
+    auto model_module = []()
+    {
+        return di::make_injector(
+                   di::bind<int>.named(Rows).to(6),
+                   di::bind<int>.named(Cols).to(8));
+    };
+
+    auto app_module = [](bool use_gui_view)
+    {
+        return di::make_injector(
+                   di::bind<iview>.to([&](const auto& injector) -> iview&
+        {
+            if(use_gui_view) return injector.template create<gui_view&>();
+            else return injector.template create<text_view&>();
+        }),
+        di::bind<timer>().in(di::unique),
+        // each time a timer is requested
+        // a new instance is created
+        di::bind<iclient*[]>().to<timer, user, timer>(),
+        di::bind<int>.to(42),
+        // di::bind<int>.to(123)[di::override],
+        di::bind<string>.to("Hello!"));
+    };
+
     const auto use_gui_view = true;
     auto injector =
         di::make_injector(
-            di::bind<iview>.to([&](const auto& injector) -> iview&
-    {
-        if(use_gui_view) return injector.template create<gui_view&>();
-        else return injector.template create<text_view&>();
-    }),
-    di::bind<timer>().in(di::unique),
-    // each time a timer is requested
-    // a new instance is created
-    di::bind<iclient*[]>().to<timer, user, timer>(),
-    di::bind<int>.to(42),
-    // di::bind<int>.to(123)[di::override],
-    di::bind<string>.to("Hello!"));
+            model_module(),
+            app_module(use_gui_view));
 
     auto a = injector.create<app>();
 
