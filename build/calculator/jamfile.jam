@@ -2,4 +2,5 @@ local sources = calculator ;
 
 lib calculator
     : $(sources).cpp
+    : <include>../../../boost
     ;
