@@ -2,33 +2,22 @@ local calculator_folder = ../calculator ;
 
 local calculator_lib = $(calculator_folder)//calculator ;
 
-local install_folder = ../bin ;
-
 local sources = hello ;
 
 import boost ;
 
 boost.use-project 1.62 ;
 
-exe hello.build
+exe hello
     : $(sources).cpp $(calculator_lib)
     : <include>$(calculator_folder)
       <library>/boost//program_options
     ;
 
-install hello
-    : hello.build
-    : <toolset>clang:<location>$(install_folder)/clang
-      <toolset>darwin:<location>$(install_folder)/darwin
-      <install-dependencies>on
-      <install-type>EXE
-      <install-type>LIB
-    ;
-
 import testing ;
 
 unit-test exec_hello
-    : hello.build
+    : hello
     : <testing.arg>"--help"
     ;
 

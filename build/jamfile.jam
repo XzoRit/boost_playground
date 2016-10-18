@@ -7,3 +7,14 @@ project
     ;
 
 build-project hello ;
+
+local install_folder = ./bin ;
+
+install install_hello
+    : hello
+    : <toolset>clang:<location>$(install_folder)/clang
+      <toolset>darwin:<location>$(install_folder)/darwin
+      <install-dependencies>on
+      <install-type>EXE
+      <install-type>LIB
+    ;
