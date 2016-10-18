@@ -6,6 +6,7 @@ project
       <warnings-as-errors>on
     ;
 
+build-project calculator ;
 build-project hello ;
 
 local install_folder = ./bin ;

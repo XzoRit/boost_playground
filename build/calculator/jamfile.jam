@@ -4,3 +4,7 @@ lib calculator
     : $(sources).cpp
     : <include>../../../boost
     ;
+
+import testing ;
+
+run $(sources)_test.cpp calculator ;
