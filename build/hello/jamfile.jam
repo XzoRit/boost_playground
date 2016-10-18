@@ -16,7 +16,8 @@ exe hello.build
 
 install hello
     : hello.build
-    : <location>$(install_folder)
+    : <toolset>clang:<location>$(install_folder)/clang
+      <toolset>darwin:<location>$(install_folder)/darwin
       <install-dependencies>on
       <install-type>EXE
       <install-type>LIB
