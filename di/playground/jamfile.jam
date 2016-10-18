@@ -1,12 +1,19 @@
 import testing ;
 
+local install_folder = ../bin ;
+
 exe di_playground
     : main.cpp
     : <include>../../../boost_di/include : <cxxflags>-std=c++14 ;
     
 install install_di_playground
     : di_playground
-    : <location>../bin ;
+    : <toolset>clang:<location>$(install_folder)/clang
+      <toolset>darwin:<location>$(install_folder)/darwin
+      <install-dependencies>on
+      <install-type>EXE
+      <install-type>LIB
+    ;
 
 unit-test exec_tests
     : di_playground ;
