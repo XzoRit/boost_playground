@@ -1,6 +1,3 @@
-import modules ;
-import testing ;
-
 local calculator_folder = ../calculator ;
 
 local calculator_lib = $(calculator_folder)//calculator ;
@@ -9,9 +6,14 @@ local install_folder = ../bin ;
 
 local sources = hello ;
 
+import boost ;
+
+boost.use-project 1.62 ;
+
 exe hello.build
-    : $(sources).cpp $(calculator_lib) ../../../boost//program_options
+    : $(sources).cpp $(calculator_lib)
     : <include>$(calculator_folder)
+      <library>/boost//program_options
     ;
 
 install hello
@@ -22,6 +24,8 @@ install hello
       <install-type>EXE
       <install-type>LIB
     ;
+
+import testing ;
 
 unit-test exec_hello
     : hello.build
