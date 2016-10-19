@@ -4,10 +4,6 @@ local calculator_lib = $(calculator_folder)//calculator ;
 
 local sources = hello ;
 
-import boost ;
-
-boost.use-project 1.62 ;
-
 exe hello
     : $(sources).cpp $(calculator_lib)
     : <include>$(calculator_folder)

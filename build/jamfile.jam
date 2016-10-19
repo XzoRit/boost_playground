@@ -1,3 +1,6 @@
+import boost ;
+boost.use-project 1.62 ;
+
 project
     : default-build debug
     : build-dir ./build

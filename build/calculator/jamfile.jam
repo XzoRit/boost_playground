@@ -6,12 +6,9 @@ lib calculator
     ;
 
 import testing ;
-import boost ;
-
-boost.use-project 1.62 ;
 
 run $(sources)_test.cpp calculator
-:
-:
-: <library>/boost//unit_test_framework
-;
+    :
+    :
+    : <library>/boost//unit_test_framework
+    ;
