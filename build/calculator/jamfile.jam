@@ -2,6 +2,7 @@ local sources = calculator ;
 
 lib calculator
     : $(sources).cpp
+    : <include>$(boost_include_path)
     ;
 
 import testing ;
