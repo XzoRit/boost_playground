@@ -1,12 +1,11 @@
 import boost ;
 boost.use-project 1.62 ;
 
-project
+project boost_build_playground
     : default-build debug
     : build-dir ./build
     : requirements <cxxflags>-std=c++1z
       <warnings>all
-      <warnings-as-errors>on
     ;
 
 build-project calculator ;

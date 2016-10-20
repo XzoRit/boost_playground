@@ -7,10 +7,11 @@ namespace po = boost::program_options;
 
 int main(int argc, char *argv[])
 {
+    std::string numbers_as_string;
     po::options_description desc("Allowed options");
     desc.add_options()
     ("help", "produce help message")
-    ("compression", po::value<int>(), "set compression level");
+    ("numbers", po::value<std::string>(&numbers_as_string), "comma separated list of numbers");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -21,8 +22,12 @@ int main(int argc, char *argv[])
         std::cout << desc << "\n";
         return 0;
     }
-
-    assert(Calculator::add("1,22,333") == 356);
+    if (vm.count("numbers"))
+    {
+        std::cout << "sum of " << numbers_as_string
+                  << " = " << Calculator::add(numbers_as_string)
+                  << "\n";
+    }
 
     return 0;
 }

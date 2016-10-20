@@ -14,7 +14,7 @@ import testing ;
 
 unit-test exec_hello
     : hello
-    : <testing.arg>"--help"
+    : <testing.arg>"--numbers=1,22,333"
     ;
 
 always exec_hello ;
