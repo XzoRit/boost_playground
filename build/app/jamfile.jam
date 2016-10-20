@@ -2,9 +2,9 @@ local calculator_folder = ../calculator ;
 
 local calculator_lib = $(calculator_folder)//calculator ;
 
-local sources = hello ;
+local sources = main ;
 
-exe hello
+exe app
     : $(sources).cpp $(calculator_lib)
     : <include>$(calculator_folder)
       <library>/boost//program_options
@@ -12,9 +12,9 @@ exe hello
 
 import testing ;
 
-unit-test exec_hello
-    : hello
+unit-test exec_app
+    : app
     : <testing.arg>"--numbers=1,22,333"
     ;
 
-always exec_hello ;
+always exec_app ;

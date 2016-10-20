@@ -9,12 +9,12 @@ project boost_build_playground
     ;
 
 build-project calculator ;
-build-project hello ;
+build-project app ;
 
 local install_folder = ./bin ;
 
-install install_hello
-    : hello
+install install_app
+    : app
     : <toolset>clang:<location>$(install_folder)/clang
       <toolset>darwin:<location>$(install_folder)/darwin
       <install-dependencies>on
