@@ -9,7 +9,7 @@ int Calculator::add(std::string numbers)
   typedef boost::char_separator<char> SeparatorType;
   typedef boost::tokenizer<SeparatorType> TokenizerType;
 
-  SeparatorType separator{","};
+  SeparatorType separator{",\n"};
   TokenizerType separatedNums{numbers, separator};
 
   std::vector<int> numsAsInts{};
