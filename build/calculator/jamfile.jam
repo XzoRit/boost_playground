@@ -1,4 +1,4 @@
-local sources = calculator ;
+constant sources : calculator ;
 
 lib calculator
     : $(sources).cpp
@@ -12,3 +12,5 @@ run $(sources)_test.cpp calculator
     :
     : <library>/boost//unit_test_framework
     ;
+
+compile-fail calculator_test_default_ctor_fail.cpp ;

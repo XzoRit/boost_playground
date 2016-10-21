@@ -5,8 +5,9 @@
 
 class Calculator
 {
+    Calculator() = delete;
 public:
-  static int add(std::string numbers);
+    static int add(std::string numbers);
 };
 
 #endif
