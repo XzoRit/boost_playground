@@ -1,0 +1,11 @@
+project
+    : default-build debug ;
+
+exe workshop_boost_spirit_app
+    : boost_spirit_workshop.cpp
+    :
+    : <cxxflags>-std=c++11 ;
+
+install install_workshop_boost_spirit_app
+    : workshop_boost_spirit_app
+    : <location>./bin ;
