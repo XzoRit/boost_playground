@@ -1,0 +1,14 @@
+import testing ;
+
+project
+    : default-build debug
+    : build-dir ./build ;
+
+build-project playground ;
+
+install install_hana_playground
+    : playground
+    : <install-dependencies>on <install-type>EXE <install-type>LIB ;
+
+unit-test test_hana_playground
+    : playground ;

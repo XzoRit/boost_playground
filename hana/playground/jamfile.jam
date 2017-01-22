@@ -1,0 +1,3 @@
+exe hana_playground
+    : main.cpp
+    : <include>../../../boost : <cxxflags>-std=c++1y ;
