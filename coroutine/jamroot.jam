@@ -1,0 +1,17 @@
+lib boost_system
+    :
+    : <file>/opt/local/lib/libboost_system-mt.dylib ;
+
+lib boost_coroutine
+    :
+    : <file>/opt/local/lib/libboost_coroutine-mt.dylib ;
+
+exe coroutine
+    : main.cpp boost_system boost_coroutine
+    : <cxxflags>-std=c++03
+    :
+    : <variant>debug ;
+
+install install_coroutine
+    : coroutine
+    : <location>. ;
