@@ -1,17 +1,17 @@
-lib boost_system
-    :
-    : <file>/opt/local/lib/libboost_system-mt.dylib ;
+local boost_dir = ../../boost ;
 
-lib boost_coroutine
-    :
-    : <file>/opt/local/lib/libboost_coroutine-mt.dylib ;
+use-project /boost : $(boost_dir) ;
 
 exe coroutine
-    : main.cpp boost_system boost_coroutine
+    : main.cpp /boost//coroutine
     : <cxxflags>-std=c++03
     :
     : <variant>debug ;
 
-install install_coroutine
+import testing ;
+
+unit-test exec_coroutine
     : coroutine
-    : <location>. ;
+    ;
+
+always exec_coroutine ;
