@@ -7,11 +7,13 @@
 namespace hana = boost::hana;
 
 template<class ...T>
-auto smallest = hana::minimum(
+auto smallest = hana::fold(
                   hana::make_tuple(hana::type_c<T>...),
                   [](auto a, auto b)
 {
-  return hana::sizeof_(a) < hana::sizeof_(b);
+    return hana::minimum(
+        hana::make_tuple(hana::make_type(a), hana::make_type(b)),
+        [](auto a, auto b){ return hana::sizeof_(a) < hana::sizeof_(b); });
 });
 
 template<class ...T>
