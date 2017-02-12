@@ -6,9 +6,42 @@
 
 namespace hana = boost::hana;
 
-TEST_CASE("maximum size of 2 types")
+template<class ...T>
+auto smallest = hana::minimum(
+                  hana::make_tuple(hana::type_c<T>...),
+                  [](auto a, auto b)
 {
-    hana::transform(
-	hana::tuple_t<char, int>,
-	[](auto a){return sizeof(a);});
+  return hana::sizeof_(a) < hana::sizeof_(b);
+});
+
+template<class ...T>
+using smallest_t = typename decltype(smallest<T...>)::type;
+
+
+template<class ...T>
+auto largest = hana::maximum(
+    hana::make_tuple(hana::type_c<T>...),
+    [](auto a, auto b)
+{
+  return hana::sizeof_(a) > hana::sizeof_(b);
+});
+
+template<class ...T>
+using largest_t = typename decltype(largest<T...>)::type;
+
+
+TEST_CASE("type with smallest size")
+{
+  static_assert(
+    std::is_same <
+    smallest_t<int, long, char, short>,
+    char >::value, "");
+}
+
+TEST_CASE("type of largest size")
+{
+  static_assert(
+    std::is_same <
+    largest_t<int, long, char, short>,
+    char >::value, "");
 }
