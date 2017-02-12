@@ -23,7 +23,7 @@ auto largest = hana::maximum(
     hana::make_tuple(hana::type_c<T>...),
     [](auto a, auto b)
 {
-  return hana::sizeof_(a) > hana::sizeof_(b);
+  return hana::sizeof_(a) < hana::sizeof_(b);
 });
 
 template<class ...T>
@@ -34,7 +34,7 @@ TEST_CASE("type with smallest size")
 {
   static_assert(
     std::is_same <
-    smallest_t<int, long, char, short>,
+    smallest_t<int, long long, char, short>,
     char >::value, "");
 }
 
@@ -42,6 +42,6 @@ TEST_CASE("type of largest size")
 {
   static_assert(
     std::is_same <
-    largest_t<int, long, char, short>,
-    char >::value, "");
+    largest_t<int, long long, char, short>,
+    long long >::value, "");
 }
