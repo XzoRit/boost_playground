@@ -5,7 +5,7 @@
 namespace sml = boost::sml;
 using namespace sml;
 
-struct my_logger
+struct PrintfLogger
 {
     template <class SM, class TEvent>
     void log_process_event(const TEvent&)
@@ -77,8 +77,8 @@ struct Controller
 
 int main()
 {
-    my_logger l;
-    sm<Controller, logger<my_logger>> sm{l};
+    PrintfLogger l;
+    sm<Controller, logger<PrintfLogger>> sm{l};
     assert(sm.is(state<Idle>));
 
     sm.process_event(Start{});
