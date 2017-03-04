@@ -1,0 +1,19 @@
+import testing ;
+
+local install_folder = ../bin ;
+
+exe mock_playground
+    : main.cpp
+    : <include>../../../boost_mock/turtle/include <include>../../../boost
+    : <cxxflags>-std=c++14 ;
+
+install install_mock_playground
+    : mock_playground
+    : <toolset>clang:<location>$(install_folder)/clang
+      <toolset>darwin:<location>$(install_folder)/darwin
+      <install-dependencies>on
+      <install-type>EXE
+      <install-type>LIB ;
+
+unit-test exec_tests
+    : mock_playground ;
