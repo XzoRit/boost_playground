@@ -1,0 +1,21 @@
+import testing ;
+
+local install_folder = ../bin ;
+
+exe sml_playground
+    : main.cpp
+    : <include>../../../boost_sml/sml/include : <cxxflags>-std=c++14
+    ;
+
+install install_sml_playground
+    : sml_playground
+    : <toolset>clang:<location>$(install_folder)/clang
+      <toolset>darwin:<location>$(install_folder)/darwin
+      <install-dependencies>on
+      <install-type>EXE
+      <install-type>LIB
+    ;
+
+unit-test exec_tests
+    : sml_playground
+    ;
