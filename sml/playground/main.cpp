@@ -36,6 +36,8 @@ struct PrintfLogger
     }
 };
 
+struct Show {};
+struct Hide {};
 struct Start {};
 struct Run {};
 struct Finished {};
@@ -55,11 +57,13 @@ struct sendFinished
     void operator()(){}
 };
 
+class Hidden;
+class Visible;
 class Idle;
 class Starting;
 class Running;
 
-struct Controller
+struct Visible
 {
     auto operator()() const
     {
@@ -73,20 +77,65 @@ struct Controller
     }
 };
 
+struct Controller
+{
+    auto operator()() const
+    {
+        return
+            make_transition_table
+            (
+                *state<Hidden> + event<Show> = state<Visible>
+                ,state<Visible> + event<Hide> = state<Hidden>
+            );
+    }
+};
+
 #include <cassert>
 
 int main()
 {
     PrintfLogger l;
     sm<Controller, logger<PrintfLogger>> sm{l};
-    assert(sm.is(state<Idle>));
+    assert(sm.is<decltype(state<Controller>)>(state<Hidden>));
+    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+
+    sm.process_event(Show{});
+    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
+    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
 
     sm.process_event(Start{});
-    assert(sm.is(state<Starting>));
+    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
+    assert(sm.is<decltype(state<Visible>)>(state<Starting>));
 
     sm.process_event(Run{});
-    assert(sm.is(state<Running>));
+    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
+    assert(sm.is<decltype(state<Visible>)>(state<Running>));
 
     sm.process_event(Finished{});
-    assert(sm.is(state<Idle>));
+    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
+    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+
+    sm.process_event(Hide{});
+    assert(sm.is<decltype(state<Controller>)>(state<Hidden>));
+    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+
+    sm.process_event(Show{});
+    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
+    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+
+    sm.process_event(Start{});
+    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
+    assert(sm.is<decltype(state<Visible>)>(state<Starting>));
+
+    sm.process_event(Run{});
+    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
+    assert(sm.is<decltype(state<Visible>)>(state<Running>));
+
+    sm.process_event(Hide{});
+    assert(sm.is<decltype(state<Controller>)>(state<Hidden>));
+    assert(sm.is<decltype(state<Visible>)>(state<Running>));
+
+    sm.process_event(Show{});
+    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
+    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
 }
