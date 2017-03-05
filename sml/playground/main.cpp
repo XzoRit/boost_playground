@@ -44,17 +44,17 @@ struct Finished {};
 
 struct sendStart
 {
-    void operator()(){}
+    void operator()(const Start&){}
 };
 
 struct sendRunning
 {
-    void operator()(){}
+    void operator()(const Run&){}
 };
 
 struct sendFinished
 {
-    void operator()(){}
+    void operator()(const Finished&){}
 };
 
 class Hidden{};
