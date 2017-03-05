@@ -1,9 +1,9 @@
 #include <boost/sml.hpp>
 #include <typeinfo>
+#include <iostream>
 #include <stdio.h>
 
 namespace sml = boost::sml;
-using namespace sml;
 
 struct PrintfLogger
 {
@@ -68,11 +68,11 @@ struct Visible
     auto operator()() const
     {
         return
-            make_transition_table
+            sml::make_transition_table
             (
-                *state<Idle> + event<Start> / sendStart{} = state<Starting>
-                ,state<Starting> + event<Run> / sendRunning{} = state<Running>
-                ,state<Running> + event<Finished> / sendFinished{} = state<Idle>
+                *sml::state<Idle> + sml::event<Start> / sendStart{} = sml::state<Starting>
+                ,sml::state<Starting> + sml::event<Run> / sendRunning{} = sml::state<Running>
+                ,sml::state<Running> + sml::event<Finished> / sendFinished{} = sml::state<Idle>
             );
     }
 };
@@ -82,10 +82,10 @@ struct Controller
     auto operator()() const
     {
         return
-            make_transition_table
+            sml::make_transition_table
             (
-                *state<Hidden> + event<Show> = state<Visible>
-                ,state<Visible> + event<Hide> = state<Hidden>
+                *sml::state<Hidden> + sml::event<Show> = sml::state<Visible>
+                ,sml::state<Visible> + sml::event<Hide> = sml::state<Hidden>
             );
     }
 };
@@ -95,47 +95,47 @@ struct Controller
 int main()
 {
     PrintfLogger l;
-    sm<Controller, logger<PrintfLogger>> sm{l};
-    assert(sm.is<decltype(state<Controller>)>(state<Hidden>));
-    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+    sml::sm<Controller, sml::logger<PrintfLogger>> sm{l};
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Hidden>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Idle>));
 
     sm.process_event(Show{});
-    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Visible>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Idle>));
 
     sm.process_event(Start{});
-    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    assert(sm.is<decltype(state<Visible>)>(state<Starting>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Visible>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Starting>));
 
     sm.process_event(Run{});
-    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    assert(sm.is<decltype(state<Visible>)>(state<Running>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Visible>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Running>));
 
     sm.process_event(Finished{});
-    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Visible>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Idle>));
 
     sm.process_event(Hide{});
-    assert(sm.is<decltype(state<Controller>)>(state<Hidden>));
-    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Hidden>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Idle>));
 
     sm.process_event(Show{});
-    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Visible>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Idle>));
 
     sm.process_event(Start{});
-    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    assert(sm.is<decltype(state<Visible>)>(state<Starting>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Visible>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Starting>));
 
     sm.process_event(Run{});
-    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    assert(sm.is<decltype(state<Visible>)>(state<Running>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Visible>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Running>));
 
     sm.process_event(Hide{});
-    assert(sm.is<decltype(state<Controller>)>(state<Hidden>));
-    assert(sm.is<decltype(state<Visible>)>(state<Running>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Hidden>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Running>));
 
     sm.process_event(Show{});
-    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Visible>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Idle>));
 }
