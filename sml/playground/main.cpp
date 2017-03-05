@@ -92,7 +92,11 @@ struct Visible
                 ,state<Idle> + on_entry<_> / EntryAction<Idle>{}
                 ,state<Idle> + on_exit<_> / ExitAction<Idle>{}
                 ,state<Starting> + event<Run> / sendRunning{} = state<Running>
+                ,state<Starting> + on_entry<_> / EntryAction<Starting>{}
+                ,state<Starting> + on_exit<_> / ExitAction<Starting>{}
                 ,state<Running> + event<Finished> / sendFinished{} = state<Idle>
+                ,state<Running> + on_entry<_> / EntryAction<Running>{}
+                ,state<Running> + on_exit<_> / ExitAction<Running>{}
             );
     }
 };
@@ -109,6 +113,8 @@ struct Controller
                 ,state<Hidden> + on_entry<_> / EntryAction<Hidden>{}
                 ,state<Hidden> + on_exit<_> / ExitAction<Hidden>{}
                 ,state<Visible> + event<Hide> = state<Hidden>
+                ,state<Visible> + on_entry<_> / EntryAction<Visible>{}
+                ,state<Visible> + on_exit<_> / ExitAction<Visible>{}
             );
     }
 };
@@ -127,39 +133,39 @@ int main()
     assert(sm.is<decltype(state<Controller>)>(state<Visible>));
     assert(sm.is<decltype(state<Visible>)>(state<Idle>));
 
-    // sm.process_event(Start{});
-    // assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    // assert(sm.is<decltype(state<Visible>)>(state<Starting>));
+    sm.process_event(Start{});
+    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
+    assert(sm.is<decltype(state<Visible>)>(state<Starting>));
 
-    // sm.process_event(Run{});
-    // assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    // assert(sm.is<decltype(state<Visible>)>(state<Running>));
+    sm.process_event(Run{});
+    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
+    assert(sm.is<decltype(state<Visible>)>(state<Running>));
 
-    // sm.process_event(Finished{});
-    // assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    // assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+    sm.process_event(Finished{});
+    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
+    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
 
-    // sm.process_event(Hide{});
-    // assert(sm.is<decltype(state<Controller>)>(state<Hidden>));
-    // assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+    sm.process_event(Hide{});
+    assert(sm.is<decltype(state<Controller>)>(state<Hidden>));
+    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
 
-    // sm.process_event(Show{});
-    // assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    // assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+    sm.process_event(Show{});
+    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
+    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
 
-    // sm.process_event(Start{});
-    // assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    // assert(sm.is<decltype(state<Visible>)>(state<Starting>));
+    sm.process_event(Start{});
+    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
+    assert(sm.is<decltype(state<Visible>)>(state<Starting>));
 
-    // sm.process_event(Run{});
-    // assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    // assert(sm.is<decltype(state<Visible>)>(state<Running>));
+    sm.process_event(Run{});
+    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
+    assert(sm.is<decltype(state<Visible>)>(state<Running>));
 
-    // sm.process_event(Hide{});
-    // assert(sm.is<decltype(state<Controller>)>(state<Hidden>));
-    // assert(sm.is<decltype(state<Visible>)>(state<Running>));
+    sm.process_event(Hide{});
+    assert(sm.is<decltype(state<Controller>)>(state<Hidden>));
+    assert(sm.is<decltype(state<Visible>)>(state<Running>));
 
-    // sm.process_event(Show{});
-    // assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    // assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+    sm.process_event(Show{});
+    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
+    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
 }
