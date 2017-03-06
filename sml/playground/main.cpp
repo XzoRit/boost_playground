@@ -110,6 +110,7 @@ struct Controller
             make_transition_table
             (
                 *state<Hidden> + event<Show> = state<Visible>
+                ,state<Hidden> + event<Start> = state<Starting>
                 ,state<Hidden> + on_entry<_> / EntryAction<Hidden>{}
                 ,state<Hidden> + on_exit<_> / ExitAction<Hidden>{}
                 ,state<Visible> + event<Hide> = state<Hidden>
@@ -168,4 +169,13 @@ int main()
     sm.process_event(Show{});
     assert(sm.is<decltype(state<Controller>)>(state<Visible>));
     assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+
+    sm.process_event(Hide{});
+    assert(sm.is<decltype(state<Controller>)>(state<Hidden>));
+    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+
+    sm.process_event(Start{});
+    // assert(sm.is<decltype(state<Controller>)>(state<Visible>));
+    // assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+
 }
