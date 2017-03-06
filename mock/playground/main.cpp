@@ -35,13 +35,23 @@ private:
     const IView& m_view;
 };
 
+MOCK_BASE_CLASS(MockView, IView)
+{
+    MOCK_CONST_METHOD(display, 1, void(int), a);
+};
+
 namespace utf = boost::unit_test;
 
 BOOST_AUTO_TEST_SUITE(test_suite_1)
 
 BOOST_AUTO_TEST_CASE(test_1)
 {
-    BOOST_TEST(true);
+    MockView v;
+    Calculator c{v};
+
+    MOCK_EXPECT(v.display);
+
+    c.add(0, 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
