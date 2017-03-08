@@ -9,6 +9,11 @@ public:
     : value(v)
     {}
 
+    operator int()
+    {
+        return value;
+    }
+
     const int value;
 };
 
@@ -79,6 +84,93 @@ BOOST_AUTO_TEST_CASE(test_stream_result_via_mock_stream)
     Calculator c(v);
 
     MOCK_EXPECT(v.display).once().with(Result(0)).returns(true);
+
+   c.add(1, 2);
+}
+
+bool customConstraintFunc(const Result& actual)
+{
+    return actual.value == 3;
+}
+
+BOOST_AUTO_TEST_CASE(test_custom_constraint_func)
+{
+    MockView v;
+    Calculator c(v);
+
+    MOCK_EXPECT(v.display).once().with(customConstraintFunc).returns(true);
+
+   c.add(1, 2);
+}
+
+struct CustomConstraintType
+{};
+
+bool operator==(const Result& r, const CustomConstraintType&)
+{
+    return r.value == 2;
+}
+
+mock::stream& operator<<(mock::stream& str, const CustomConstraintType&)
+{
+    str << "actual == 2";
+    return str;
+}
+
+BOOST_AUTO_TEST_CASE(test_custom_constraint_type)
+{
+    MockView v;
+    Calculator c(v);
+
+    MOCK_EXPECT(v.display).once().with(CustomConstraintType()).returns(true);
+
+   c.add(1, 2);
+}
+
+template<class Expected>
+struct NearConstraint
+{
+    NearConstraint(Expected e, Expected t)
+      : expected(e)
+      , threshold(t)
+    {}
+
+    template<class Actual>
+    bool operator()(Actual actual) const
+    {
+        return std::abs(actual - boost::unwrap_ref(expected))
+            <boost::unwrap_ref(threshold);
+    }
+
+    friend std::ostream& operator<<(std::ostream& s, const NearConstraint& c)
+    {
+        return s << "near(" <<mock::format(c.expected)
+            << ", " <<mock::format(c.threshold) << ")";
+    }
+
+    Expected expected, threshold;
+};
+
+template<class Expected>
+mock::constraint<NearConstraint<Expected>> near(Expected expected, Expected threshold)
+{
+    return NearConstraint<Expected>(expected, threshold);
+}
+
+BOOST_AUTO_TEST_CASE(test_custom_templated_stateful_constraint)
+{
+    MockView v;
+    Calculator c(v);
+    int expected;
+    int threshold;
+
+    MOCK_EXPECT(v.display)
+        .once()
+        .with(near(boost::cref(expected), boost::cref(threshold)))
+        .returns(true);
+
+    expected = 4;
+    threshold = 2;
 
    c.add(1, 2);
 }
