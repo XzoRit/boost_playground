@@ -3,7 +3,7 @@ import testing ;
 local install_folder = ../bin ;
 
 exe mock_playground
-    : main.cpp
+    : main.cpp mock.cpp
     : <include>../../../boost_mock/turtle/include <include>../../../boost
     : <cxxflags>-std=c++14 ;
 
