@@ -88,6 +88,16 @@ BOOST_AUTO_TEST_CASE(test_stream_result_via_mock_stream)
    c.add(1, 2);
 }
 
+BOOST_AUTO_TEST_CASE(test_throws_exception)
+{
+    MockView v;
+    Calculator c(v);
+
+    MOCK_EXPECT(v.display).returns(false);
+
+    BOOST_CHECK_THROW(c.add(1, 2), std::runtime_error);
+}
+
 bool customConstraintFunc(const Result& actual)
 {
     return actual.value == 3;
