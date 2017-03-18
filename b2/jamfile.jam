@@ -8,7 +8,6 @@ project boost_build_playground
       <warnings>all
     ;
 
-build-project calculator ;
 build-project app ;
 
 local install_folder = ./bin ;
