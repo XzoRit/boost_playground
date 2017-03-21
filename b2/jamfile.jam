@@ -6,6 +6,7 @@ project boost_build_playground
     : build-dir ./build
     : requirements <cxxflags>-std=c++1z
       <warnings>all
+      <warnings-as-errors>on
     ;
 
 build-project app ;
