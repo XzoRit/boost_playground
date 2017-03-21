@@ -10,7 +10,7 @@ project boost_build_playground
 
 build-project app ;
 
-local install_folder = ./bin ;
+path-constant install_folder : ./bin ;
 
 install install_app
     : app
