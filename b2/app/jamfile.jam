@@ -1,9 +1,11 @@
-local calculator_folder = ../calculator ;
+path-constant calculator_folder
+    : ../calculator
+    ;
 
 local calculator_lib = $(calculator_folder)//calculator ;
 
 local sources = main ;
-
+# globbing ?
 exe app
     : $(sources).cpp $(calculator_lib)
     : <include>$(calculator_folder)
