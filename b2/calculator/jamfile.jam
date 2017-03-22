@@ -1,14 +1,28 @@
+constant compile_fail_sources
+    : [ glob *_fail.cpp ]
+    ;
+
+constant test_sources
+    : [ glob *_test.cpp ]
+    ;
+
+constant sources
+    : [ glob *.cpp : $(test_sources) $(compile_fail_sources) ]
+    ;
+
 lib calculator
-    : [ glob *.cpp : *_test.cpp *_fail.cpp ]
+    : $(sources)
     : <include>$(boost_include_path)
+    :
+    : <include>./
     ;
 
 import testing ;
 
-run [ glob *_test.cpp ] calculator
+run $(test_sources) calculator
     :
     :
     : <library>/boost//unit_test_framework
     ;
 
-compile-fail [ glob *_fail.cpp ] ;
+compile-fail $(compile_fail_sources) ;

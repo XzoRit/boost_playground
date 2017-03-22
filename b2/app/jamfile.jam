@@ -2,14 +2,17 @@ path-constant calculator_folder
     : ../calculator
     ;
 
-local calculator_lib = $(calculator_folder)//calculator ;
+constant calculator_lib
+    : $(calculator_folder)//calculator
+    ;
 
-local sources = main ;
-# globbing ?
+constant sources
+    : [ glob *.cpp ]
+    ;
+
 exe app
-    : $(sources).cpp $(calculator_lib)
-    : <include>$(calculator_folder)
-      <library>/boost//program_options
+    : $(sources) $(calculator_lib)
+    : <library>/boost//program_options
     ;
 
 import testing ;
