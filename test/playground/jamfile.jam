@@ -7,4 +7,7 @@ import testing ;
 
 unit-test exec_tests
     : test_playground
+    : <testing.arg>"--log_level=all"
     ;
+
+always exec_tests ;
