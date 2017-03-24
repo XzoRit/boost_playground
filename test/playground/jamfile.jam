@@ -1,13 +1,10 @@
-import testing ;
-
 exe test_playground
     : main.cpp test_vector.cpp test_diamond.cpp
-    : <include>../../../boost
-    : <cxxflags>-std=c++14 ;
+    : <use>/boost//headers
+    ;
     
-install install_test_playground
-    : test_playground
-    : <location>../bin ;
+import testing ;
 
 unit-test exec_tests
-    : test_playground ;
+    : test_playground
+    ;
