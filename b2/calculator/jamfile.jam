@@ -12,7 +12,9 @@ constant sources
 
 lib calculator
     : $(sources)
-    : <include>$(boost_include_path)
+    # instead of  <include>$(boost_include_path)
+    # we use this predefined target from boost
+    : <use>/boost//headers
     :
     : <include>./
     ;
