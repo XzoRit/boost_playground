@@ -1,5 +1,10 @@
 import boost ;
-boost.use-project 1.62 ;
+# this statement uses one concrete version of boost
+# boost.use-project 1.62 ;
+# if version number is omitted latest version is picked
+#
+# call 'b2 --help boost' for more infos
+boost.use-project ;
 
 path-constant build_folder
     : ./build
