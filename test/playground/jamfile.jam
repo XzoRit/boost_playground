@@ -1,13 +1,13 @@
-exe test_playground
-    : main.cpp test_vector.cpp test_diamond.cpp
-    : <use>/boost//headers
-    ;
-    
 import testing ;
 
-unit-test exec_tests
-    : test_playground
+run test_vector.cpp main.cpp
     : <testing.arg>"--log_level=all"
+    :
+    : <use>/boost//headers
     ;
 
-always exec_tests ;
+run test_diamond.cpp main.cpp
+    : <testing.arg>"--log_level=all"
+    :
+    : <use>/boost//headers
+    ;
