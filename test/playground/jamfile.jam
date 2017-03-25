@@ -1,13 +1,13 @@
 import testing ;
 
-run test_vector.cpp main.cpp
-    : <testing.arg>"--log_level=all"
-    :
-    : <use>/boost//headers
-    ;
+rule run_test ( test_source_file )
+{
+    run $(test_source_file) main.cpp
+        : <testing.arg>"--log_level=all"
+        :
+        : <use>/boost//headers
+        ;
+}
 
-run test_diamond.cpp main.cpp
-    : <testing.arg>"--log_level=all"
-    :
-    : <use>/boost//headers
-    ;
+run_test test_vector.cpp ;
+run_test test_diamond.cpp ;
