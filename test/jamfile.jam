@@ -15,12 +15,3 @@ project
     ;
 
 build-project playground ;
-
-path-constant install_folder
-    : ./bin
-    ;
-
-install install_test_playground
-    : playground//test_playground
-    : <location>$(install_folder)
-    ;
