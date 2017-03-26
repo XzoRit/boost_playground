@@ -12,13 +12,13 @@ vector<int> container;
 struct SuiteFixture
 {
     SuiteFixture(int element)
-        {
-            container.push_back(element);
-        }
+    {
+        container.push_back(element);
+    }
 
     ~SuiteFixture()
-        {
-        }
+    {
+    }
 };
 
 void setup()
@@ -54,12 +54,21 @@ BOOST_AUTO_TEST_CASE(fixture_decorator_on_test_case
 
 BOOST_AUTO_TEST_CASE(lambda_setup_teardown
                      , *utf::fixture(
-                         []{ container.push_back(4444) ; },
-                         []{ container.push_back(55555);}))
+                         [] { container.push_back(4444) ; },
+                         [] { container.push_back(55555);}))
 {
     BOOST_TEST(!container.empty());
     BOOST_TEST(container.size() == 1);
     BOOST_TEST(*begin(container) == 4444);
+}
+
+BOOST_AUTO_TEST_CASE(lambda_teardown_check)
+{
+    BOOST_TEST(container.size() == 2);
+
+    array<int, 2> expected = {{4444, 55555}};
+
+    BOOST_TEST(expected == container, tt::per_element());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
