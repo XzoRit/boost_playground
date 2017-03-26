@@ -18,13 +18,13 @@ struct SuiteFixture
 
     ~SuiteFixture()
         {
-            container.clear();
         }
 };
 
 void setup()
 {
-    container = vector<int>{1, 22, 333};
+    container.push_back(22);
+    container.push_back(333);
 }
 
 void teardown()
@@ -33,13 +33,13 @@ void teardown()
 }
 
 BOOST_AUTO_TEST_SUITE(test_fixtures
-                      , *utf::fixture<SuiteFixture>(2))
+                      , *utf::fixture<SuiteFixture>(1))
 
 BOOST_AUTO_TEST_CASE(fixture_decorator_on_test_suite)
 {
     BOOST_TEST(!container.empty());
     BOOST_TEST(container.size() == 1);
-    BOOST_TEST(*begin(container) == 2);
+    BOOST_TEST(*begin(container) == 1);
 }
 
 BOOST_AUTO_TEST_CASE(fixture_decorator_on_test_case
