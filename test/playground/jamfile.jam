@@ -1,7 +1,7 @@
 import testing ;
 
-run test_vector.cpp test_diamond.cpp main.cpp
-    : <testing.arg>"--log_level=test_suite"
+run [ glob test_*.cpp ] main.cpp
+    : <testing.arg>"--log_level=error" "--log_sink=stdout"
     :
     : <use>/boost//headers
     : test_playground
