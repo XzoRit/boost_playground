@@ -1,0 +1,24 @@
+import boost ;
+
+boost.use-project ;
+
+path-constant build_folder
+    : ./build
+    ;
+
+project
+    : default-build debug
+    : build-dir $(build_folder)
+    : requirements <cxxflags>-std=c++11
+      <warnings>all
+      <warnings-as-errors>on
+    ;
+
+import testing ;
+
+run [ glob test_*.cpp ] main.cpp
+    : <testing.arg>"--log_level=all" "--log_sink=stdout"
+    :
+    : <use>/boost//headers
+    : test_exceptions
+    ;
