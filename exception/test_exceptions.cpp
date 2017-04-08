@@ -48,9 +48,10 @@ namespace utf = boost::unit_test;
 
 bool contains_error_infos(const error_c& e)
 {
-    return ((*boost::get_error_info<error_code>(e)) == 666)
-        && ((*boost::get_error_info<error_string>(e)) == "b() was called :-)")
-        && ((*boost::get_error_info<another_error_code>(e)) == 1234);
+    BOOST_TEST((*boost::get_error_info<error_code>(e)) == 666);
+    BOOST_TEST((*boost::get_error_info<error_string>(e)) == "b() was called :-)");
+    BOOST_TEST((*boost::get_error_info<another_error_code>(e)) == 1234);
+    return true;
 }
 
 BOOST_AUTO_TEST_SUITE(exceptions)
