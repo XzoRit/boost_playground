@@ -12,15 +12,18 @@ class error_c        : public virtual exception_base {};
 
 typedef boost::error_info<struct tag_error_code, int> error_code;
 
-void c() { throw error_c() << error_code(666); }
+bool c(bool ok)
+{
+    return ok ? ok : throw error_c() << error_code(666);
+}
 
 typedef boost::error_info<struct tag_error_string, std::string> error_string;
 
-void b()
+bool b(bool bok, bool cok)
 {
     try
     {
-        c();
+        return bok ? c(cok) : throw error_b() << error_string("not ok");
     }
     catch(const boost::exception& e)
     {
@@ -31,11 +34,11 @@ void b()
 
 typedef boost::error_info<struct tag_another_error_code, int> another_error_code;
 
-void a()
+bool a(bool aok, bool bok, bool cok)
 {
     try
     {
-        b();
+        return aok ? b(bok, cok) : throw error_a() << another_error_code(456);
     }
     catch(const boost::exception& e)
     {
@@ -58,7 +61,7 @@ BOOST_AUTO_TEST_SUITE(exceptions)
 
 BOOST_AUTO_TEST_CASE(test_1)
 {
-    BOOST_CHECK_EXCEPTION(a(), error_c, contains_error_infos);
+    BOOST_CHECK_EXCEPTION(a(true, true, false), error_c, contains_error_infos);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
