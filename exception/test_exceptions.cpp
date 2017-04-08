@@ -25,7 +25,7 @@ bool b(bool bok, bool cok)
     {
         return bok ? c(cok) : throw error_b() << error_string("not ok");
     }
-    catch(const boost::exception& e)
+    catch(const error_c& e)
     {
         e << error_string("b() was called :-)");
         throw;
@@ -38,22 +38,41 @@ bool a(bool aok, bool bok, bool cok)
 {
     try
     {
-        return aok ? b(bok, cok) : throw error_a() << another_error_code(456);
+        if(!aok) throw error_a() << another_error_code(456);
+        else return b(bok, cok);
     }
-    catch(const boost::exception& e)
+    catch(const error_c& e)
     {
-        e << another_error_code(1234);
+        e << another_error_code(123);
+        throw;
+    }
+    catch(const error_b& e)
+    {
+        e << another_error_code(123);
         throw;
     }
 }
 
 namespace utf = boost::unit_test;
 
-bool contains_error_infos(const error_c& e)
+bool contains_error_infos_cba(const error_c& e)
 {
     BOOST_TEST((*boost::get_error_info<error_code>(e)) == 666);
     BOOST_TEST((*boost::get_error_info<error_string>(e)) == "b() was called :-)");
-    BOOST_TEST((*boost::get_error_info<another_error_code>(e)) == 1234);
+    BOOST_TEST((*boost::get_error_info<another_error_code>(e)) == 123);
+    return true;
+}
+
+bool contains_error_infos_ba(const error_b& e)
+{
+    BOOST_TEST((*boost::get_error_info<error_string>(e)) == "not ok");
+    BOOST_TEST((*boost::get_error_info<another_error_code>(e)) == 123);
+    return true;
+}
+
+bool contains_error_infos_a(const error_a& e)
+{
+    BOOST_TEST((*boost::get_error_info<another_error_code>(e)) == 456);
     return true;
 }
 
@@ -61,7 +80,9 @@ BOOST_AUTO_TEST_SUITE(exceptions)
 
 BOOST_AUTO_TEST_CASE(test_1)
 {
-    BOOST_CHECK_EXCEPTION(a(true, true, false), error_c, contains_error_infos);
+    BOOST_CHECK_EXCEPTION(a(true, true, false), error_c, contains_error_infos_cba);
+    BOOST_CHECK_EXCEPTION(a(true, false, true), error_b, contains_error_infos_ba );
+    BOOST_CHECK_EXCEPTION(a(false, true, true), error_a, contains_error_infos_a  );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
