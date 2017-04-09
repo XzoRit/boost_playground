@@ -3,6 +3,12 @@
 #include <stdexcept>
 #include <string>
 
+#define ADD_EXCEPTION_INFO(x)\
+        ::boost::enable_error_info(x) <<\
+        ::boost::throw_function(BOOST_THROW_EXCEPTION_CURRENT_FUNCTION) <<\
+        ::boost::throw_file(__FILE__) <<\
+        ::boost::throw_line((int)__LINE__)
+
 class exception_base : public virtual std::exception
                      , public virtual boost::exception {};
 
@@ -14,7 +20,8 @@ typedef boost::error_info<struct tag_error_code, int> error_code;
 
 bool c(bool ok)
 {
-    return ok ? ok : throw error_c() << error_code(666);
+    if(!ok) throw ADD_EXCEPTION_INFO(error_c()) << error_code(666);
+    else return ok;
 }
 
 typedef boost::error_info<struct tag_error_string, std::string> error_string;
@@ -23,7 +30,8 @@ bool b(bool bok, bool cok)
 {
     try
     {
-        return bok ? c(cok) : throw error_b() << error_string("not ok");
+        if(!bok) throw ADD_EXCEPTION_INFO(error_b()) << error_string("not ok");
+        else return c(cok);
     }
     catch(const error_c& e)
     {
@@ -38,7 +46,7 @@ bool a(bool aok, bool bok, bool cok)
 {
     try
     {
-        if(!aok) throw error_a() << another_error_code(456);
+        if(!aok) throw ADD_EXCEPTION_INFO(error_a()) << another_error_code(456);
         else return b(bok, cok);
     }
     catch(const error_c& e)
@@ -57,22 +65,43 @@ namespace utf = boost::unit_test;
 
 bool contains_error_infos_cba(const error_c& e)
 {
+    BOOST_TEST((*boost::get_error_info<boost::throw_function>(e)) == "bool c(bool)");
+    BOOST_TEST((*boost::get_error_info<boost::throw_file>(e)) == "test_exceptions.cpp");
+    BOOST_TEST((*boost::get_error_info<boost::throw_line>(e)) == 23);
+
     BOOST_TEST((*boost::get_error_info<error_code>(e)) == 666);
     BOOST_TEST((*boost::get_error_info<error_string>(e)) == "b() was called :-)");
     BOOST_TEST((*boost::get_error_info<another_error_code>(e)) == 123);
+
+    BOOST_TEST_MESSAGE(boost::diagnostic_information(e));
+
     return true;
 }
 
 bool contains_error_infos_ba(const error_b& e)
 {
+    BOOST_TEST((*boost::get_error_info<boost::throw_function>(e)) == "bool b(bool, bool)");
+    BOOST_TEST((*boost::get_error_info<boost::throw_file>(e)) == "test_exceptions.cpp");
+    BOOST_TEST((*boost::get_error_info<boost::throw_line>(e)) == 33);
+
     BOOST_TEST((*boost::get_error_info<error_string>(e)) == "not ok");
     BOOST_TEST((*boost::get_error_info<another_error_code>(e)) == 123);
+
+    BOOST_TEST_MESSAGE(boost::diagnostic_information(e));
+
     return true;
 }
 
 bool contains_error_infos_a(const error_a& e)
 {
+    BOOST_TEST((*boost::get_error_info<boost::throw_function>(e)) == "bool a(bool, bool, bool)");
+    BOOST_TEST((*boost::get_error_info<boost::throw_file>(e)) == "test_exceptions.cpp");
+    BOOST_TEST((*boost::get_error_info<boost::throw_line>(e)) == 49);
+
     BOOST_TEST((*boost::get_error_info<another_error_code>(e)) == 456);
+
+    BOOST_TEST_MESSAGE(boost::diagnostic_information(e));
+
     return true;
 }
 
