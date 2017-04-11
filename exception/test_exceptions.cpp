@@ -2,6 +2,34 @@
 #include <boost/exception/all.hpp>
 #include <stdexcept>
 #include <string>
+#include <iostream>
+
+class current_location
+{
+public:
+    current_location(const char* func_name, const char* file, int line)
+        : m_func_name(func_name)
+        , m_file(file)
+        , m_line(line)
+    {}
+
+    const char* func() const { return m_func_name; }
+    const char* file() const { return m_file     ; }
+    int         line() const { return m_line     ; }
+private:
+    const char* m_func_name;
+    const char* m_file;
+    int m_line;
+};
+
+std::ostream& operator<<(std::ostream& str, const current_location& loc)
+{
+    str << loc.file() << '(' << loc.line() << "): in function " << loc.func();
+    return str;
+}
+
+#define CURRENT_LOCATION() \
+    current_location(BOOST_THROW_EXCEPTION_CURRENT_FUNCTION, __FILE__, __LINE__)
 
 #define ADD_EXCEPTION_INFO(x)\
         ::boost::enable_error_info(x) <<\
