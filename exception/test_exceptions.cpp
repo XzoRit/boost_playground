@@ -67,7 +67,6 @@ bool contains_error_infos_cba(const error_c& e)
 {
     BOOST_TEST((*boost::get_error_info<boost::throw_function>(e)) == "bool c(bool)");
     BOOST_TEST((*boost::get_error_info<boost::throw_file>(e)) == "test_exceptions.cpp");
-    BOOST_TEST((*boost::get_error_info<boost::throw_line>(e)) == 23);
 
     BOOST_TEST((*boost::get_error_info<error_code>(e)) == 666);
     BOOST_TEST((*boost::get_error_info<error_string>(e)) == "b() was called :-)");
@@ -82,7 +81,6 @@ bool contains_error_infos_ba(const error_b& e)
 {
     BOOST_TEST((*boost::get_error_info<boost::throw_function>(e)) == "bool b(bool, bool)");
     BOOST_TEST((*boost::get_error_info<boost::throw_file>(e)) == "test_exceptions.cpp");
-    BOOST_TEST((*boost::get_error_info<boost::throw_line>(e)) == 33);
 
     BOOST_TEST((*boost::get_error_info<error_string>(e)) == "not ok");
     BOOST_TEST((*boost::get_error_info<another_error_code>(e)) == 123);
@@ -96,7 +94,6 @@ bool contains_error_infos_a(const error_a& e)
 {
     BOOST_TEST((*boost::get_error_info<boost::throw_function>(e)) == "bool a(bool, bool, bool)");
     BOOST_TEST((*boost::get_error_info<boost::throw_file>(e)) == "test_exceptions.cpp");
-    BOOST_TEST((*boost::get_error_info<boost::throw_line>(e)) == 49);
 
     BOOST_TEST((*boost::get_error_info<another_error_code>(e)) == 456);
 
