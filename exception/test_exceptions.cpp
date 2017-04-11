@@ -139,4 +139,19 @@ BOOST_AUTO_TEST_CASE(test_1)
     BOOST_CHECK_EXCEPTION(a(false, true, true), error_a, contains_error_infos_a  );
 }
 
+BOOST_AUTO_TEST_CASE(test_2)
+{
+    try
+    {
+        a(true, true, false);
+    }
+    catch(...)
+    {
+        std::cerr << "**********\n";
+        std::cerr << CURRENT_LOCATION() << '\n'
+                  << boost::current_exception_diagnostic_information();
+        std::cerr << "**********\n";
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
