@@ -89,7 +89,7 @@ bool a(bool aok, bool bok, bool cok)
     }
 }
 
-void log_exception(std::ostream& str)
+void log_exception(std::ostream& str, const current_location& loc)
 {
     try
     {
@@ -97,15 +97,15 @@ void log_exception(std::ostream& str)
     }
     catch(const boost::exception& e)
     {
-        str << boost::diagnostic_information(e);
+        str << loc << '\n' << boost::diagnostic_information(e);
     }
     catch(const std::exception& e)
     {
-        str << e.what();
+        str << loc << '\n' << e.what();
     }
     catch(...)
     {
-        str << "Unknown exception";
+        str << loc << "\nUnknown exception";
     }
 }
 
@@ -118,7 +118,7 @@ bool log_exception_and_map_to_bool(std::ostream& str)
     }
     catch(...)
     {
-        log_exception(str);
+        log_exception(str, CURRENT_LOCATION());
     }
     return false;
 }
