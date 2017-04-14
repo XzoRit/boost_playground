@@ -89,7 +89,7 @@ bool a(bool aok, bool bok, bool cok)
     }
 }
 
-void log_exception(std::ostream& str, const current_location& loc)
+void stream_exception(std::ostream& str)
 {
     try
     {
@@ -97,19 +97,40 @@ void log_exception(std::ostream& str, const current_location& loc)
     }
     catch(const boost::exception& e)
     {
-        str << loc << '\n' << boost::diagnostic_information(e);
+        str << '\n' << boost::diagnostic_information(e);
     }
     catch(const std::exception& e)
     {
-        str << loc << '\n' << e.what();
+        str << '\n' << e.what();
     }
     catch(...)
     {
-        str << loc << "\nUnknown exception";
+        str << "\nUnknown exception";
     }
 }
 
-bool log_exception_and_map_to_bool(std::ostream& str)
+template<class ParamType>
+void stream_exception(std::ostream& str, ParamType param)
+{
+    str << param;
+    stream_exception(str);
+}
+
+template<class ParamType, class... RestParamType>
+void stream_exception(std::ostream& str, ParamType param, RestParamType... rest_params)
+{
+    str << param << ',';
+    stream_exception(str, rest_params...);
+}
+
+template<class... ParamTypes>
+void stream_exception(std::ostream& str, const current_location& loc, ParamTypes... params)
+{
+    str << loc << " with: ";
+    stream_exception(str, params...);
+}
+
+bool stream_exception_and_map_to_bool(std::ostream& str, int p1, float p2, const char* p3)
 {
     try
     {
@@ -118,7 +139,12 @@ bool log_exception_and_map_to_bool(std::ostream& str)
     }
     catch(...)
     {
-        log_exception(str, CURRENT_LOCATION());
+        stream_exception(
+            str,
+            CURRENT_LOCATION(),
+            "p1=",p1,
+            "p2=",p2,
+            "p3=",p3);
     }
     return false;
 }
@@ -192,7 +218,7 @@ BOOST_AUTO_TEST_CASE(test_3)
 {
     std::ostringstream oStr;
     oStr << "---\n";
-    BOOST_TEST(!log_exception_and_map_to_bool(oStr));
+    BOOST_TEST(!stream_exception_and_map_to_bool(oStr, 1, 1.23, "param3"));
     oStr << "---\n";
     BOOST_TEST_MESSAGE(oStr.str());
 }
