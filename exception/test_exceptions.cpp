@@ -7,6 +7,12 @@
 class current_location
 {
 public:
+    current_location()
+        : m_func_name("")
+        , m_file("")
+        , m_line(0)
+    {}
+
     current_location(const char* func_name, const char* file, int line)
         : m_func_name(func_name)
         , m_file(file)
@@ -16,6 +22,12 @@ public:
     const char* func() const { return m_func_name; }
     const char* file() const { return m_file     ; }
     int         line() const { return m_line     ; }
+    std::string str() const
+    {
+        return std::string(file())
+            + '(' + std::to_string(line()) + "): "
+            + func();
+    }
 private:
     const char* m_func_name;
     const char* m_file;
@@ -24,7 +36,7 @@ private:
 
 std::ostream& operator<<(std::ostream& str, const current_location& loc)
 {
-    str << loc.file() << '(' << loc.line() << "): in function " << loc.func();
+    str << loc.str();
     return str;
 }
 
@@ -119,14 +131,14 @@ void stream_exception(std::ostream& str, ParamType param)
 template<class ParamType, class... RestParamType>
 void stream_exception(std::ostream& str, ParamType param, RestParamType... rest_params)
 {
-    str << param << ',';
+    str << param << ' ';
     stream_exception(str, rest_params...);
 }
 
 template<class... ParamTypes>
 void stream_exception(std::ostream& str, const current_location& loc, ParamTypes... params)
 {
-    str << loc << " with: ";
+    str << loc << ' ';
     stream_exception(str, params...);
 }
 
@@ -142,9 +154,9 @@ bool stream_exception_and_map_to_bool(std::ostream& str, int p1, float p2, const
         stream_exception(
             str,
             CURRENT_LOCATION(),
-            "p1=",p1,
-            "p2=",p2,
-            "p3=",p3);
+            "p1 =",p1,
+            "p2 =",p2,
+            "p3 =",p3);
     }
     return false;
 }
