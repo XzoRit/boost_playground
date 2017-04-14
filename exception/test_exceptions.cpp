@@ -89,6 +89,40 @@ bool a(bool aok, bool bok, bool cok)
     }
 }
 
+void log_exception(std::ostream& str)
+{
+    try
+    {
+        throw;
+    }
+    catch(const boost::exception& e)
+    {
+        str << boost::diagnostic_information(e);
+    }
+    catch(const std::exception& e)
+    {
+        str << e.what();
+    }
+    catch(...)
+    {
+        str << "Unknown exception";
+    }
+}
+
+bool log_exception_and_map_to_bool(std::ostream& str)
+{
+    try
+    {
+        static_cast<void>(a(true, true, false));
+        return true;
+    }
+    catch(...)
+    {
+        log_exception(str);
+    }
+    return false;
+}
+
 namespace utf = boost::unit_test;
 
 bool contains_error_infos_cba(const error_c& e)
@@ -152,6 +186,15 @@ BOOST_AUTO_TEST_CASE(test_2)
                   << boost::current_exception_diagnostic_information();
         std::cerr << "**********\n";
     }
+}
+
+BOOST_AUTO_TEST_CASE(test_3)
+{
+    std::ostringstream oStr;
+    oStr << "---\n";
+    BOOST_TEST(!log_exception_and_map_to_bool(oStr));
+    oStr << "---\n";
+    BOOST_TEST_MESSAGE(oStr.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
