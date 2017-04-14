@@ -219,10 +219,12 @@ BOOST_AUTO_TEST_CASE(test_2)
     }
     catch(...)
     {
-        std::cerr << "**********\n";
-        std::cerr << CURRENT_LOCATION() << '\n'
-                  << boost::current_exception_diagnostic_information();
-        std::cerr << "**********\n";
+        std::ostringstream oStr;
+        oStr << "**********\n";
+        oStr << CURRENT_LOCATION() << '\n'
+             << boost::current_exception_diagnostic_information();
+        oStr << "**********\n";
+        BOOST_TEST_MESSAGE(oStr.str());
     }
 }
 
