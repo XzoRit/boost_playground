@@ -43,39 +43,35 @@ std::ostream& operator<<(std::ostream& str, const current_location& loc)
 #define CURRENT_LOCATION() \
     current_location(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__)
 
-#define ADD_EXCEPTION_INFO(x)\
-        ::boost::enable_error_info(x) <<\
-        ::boost::throw_function(BOOST_CURRENT_FUNCTION) <<\
-        ::boost::throw_file(__FILE__) <<\
-        ::boost::throw_line((int)__LINE__)
-
 #if defined(EXCEPTIONS_DISABLED)
 
 void throw_exception(
-    const std::exception& e,
-    char const * throwing_function,
-    char const * throwing_file,
-    int throwing_line );
+    const std::exception&,
+    const current_location&);
 
 #else
 
 template<class E>
 BOOST_NORETURN
-void throw_exception(const E& e, const char* current_function, const char* file, int line)
+void throw_exception(const E& e, const current_location& cur_loc)
 {
     throw ::boost::enable_error_info(e)
-        << ::boost::throw_function(current_function)
-        << ::boost::throw_file(file)
-        << ::boost::throw_line(line);
+        << ::boost::throw_function(cur_loc.func())
+        << ::boost::throw_file(cur_loc.file())
+        << ::boost::throw_line(cur_loc.line());
 }
+
 #endif
 
-#define THROW_EXCEPTION_INFO(e,i)                     \
-    ::throw_exception(\
-        ::boost::enable_error_info(e) << (i),\
-        BOOST_CURRENT_FUNCTION,\
-        __FILE__,\
-        __LINE__)
+#define THROW_EXCEPTION_WITH_INFO(e,i)               \
+    ::throw_exception(                          \
+        ::boost::enable_error_info(e) << (i),   \
+        CURRENT_LOCATION())
+
+#define THROW_EXCEPTION(e)                      \
+    ::throw_exception(                          \
+        e,                                      \
+        CURRENT_LOCATION())
 
 class exception_base : public virtual std::exception
                      , public virtual boost::exception {};
@@ -88,7 +84,7 @@ typedef boost::error_info<struct tag_error_code, int> error_code;
 
 bool c(bool ok)
 {
-    if(!ok) THROW_EXCEPTION_INFO(error_c(), error_code(666));
+    if(!ok) THROW_EXCEPTION_WITH_INFO(error_c(), error_code(666));
     else return ok;
 }
 
@@ -98,7 +94,7 @@ bool b(bool bok, bool cok)
 {
     try
     {
-        if(!bok) THROW_EXCEPTION_INFO(error_b(), error_string("not ok"));
+        if(!bok) THROW_EXCEPTION_WITH_INFO(error_b(), error_string("not ok"));
         else return c(cok);
     }
     catch(const error_c& e)
@@ -114,7 +110,7 @@ bool a(bool aok, bool bok, bool cok)
 {
     try
     {
-        if(!aok) THROW_EXCEPTION_INFO(error_a(), another_error_code(456));
+        if(!aok) THROW_EXCEPTION_WITH_INFO(error_a(), another_error_code(456));
         else return b(bok, cok);
     }
     catch(const error_c& e)
