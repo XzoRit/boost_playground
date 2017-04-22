@@ -81,8 +81,8 @@ class restorer
 {
 public:
     restorer(Ts& ... ts)
-        : values{std::make_tuple(ts...)}
-        , refs  {std::tie       (ts...)}
+        : values{std::tie(ts...)}
+        , refs  {std::tie(ts...)}
     {
     }
     ~restorer()
