@@ -1,0 +1,29 @@
+import boost ;
+
+boost.use-project ;
+
+path-constant build_folder
+: ./build
+;
+
+project boost_property_tree
+: default-build debug
+: build-dir $(build_folder)
+: requirements <cxxflags>-std=c++1z
+<warnings>all
+<warnings-as-errors>on
+;
+
+exe property_tree
+: main.cpp
+: <use>/boost//headers
+;
+
+import testing ;
+
+unit-test exec_property_tree
+: property_tree
+: <testing.arg>""
+;
+
+always exec_property_tree ;
