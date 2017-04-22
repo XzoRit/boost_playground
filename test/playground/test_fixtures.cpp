@@ -35,59 +35,6 @@ void teardown()
     container.clear();
 }
 
-BOOST_AUTO_TEST_SUITE(suite_1)
-
-std::vector<std::string> a;
-
-BOOST_AUTO_TEST_CASE(test_case_1)
-{
-    a.push_back("1");
-    BOOST_TEST(a[0] == "1");
-}
-
-BOOST_AUTO_TEST_SUITE(suite_1_1
-                     , *utf::fixture(
-                         []{},
-                         []{ a.pop_back(); }))
-
-BOOST_AUTO_TEST_CASE(test_case_1_1)
-{
-    a.push_back("1_1");
-    BOOST_TEST(a[0] == "1");
-    BOOST_TEST(a[1] == "1_1");
-}
-
-BOOST_AUTO_TEST_SUITE(suite_1_1_1
-                     , *utf::fixture(
-                         []{},
-                         []{ a.pop_back(); }))
-
-BOOST_AUTO_TEST_CASE(test_case_1_1_1)
-{
-    a.push_back("1_1_1");
-    BOOST_TEST(a[0] == "1");
-    BOOST_TEST(a[1] == "1_1");
-    BOOST_TEST(a[2] == "1_1_1");
-}
-
-BOOST_AUTO_TEST_SUITE_END()
-
-BOOST_AUTO_TEST_SUITE_END()
-
-BOOST_AUTO_TEST_SUITE(suite_1_1)
-
-BOOST_AUTO_TEST_CASE(test_case_1_2)
-{
-    a.push_back("1_2");
-    BOOST_TEST(a[0] == "1");
-    BOOST_TEST(a[1] == "1_1");
-    BOOST_TEST(a[2] == "1_2");
-}
-
-BOOST_AUTO_TEST_SUITE_END()
-
-BOOST_AUTO_TEST_SUITE_END()
-
 BOOST_AUTO_TEST_SUITE(test_fixtures
                       , *utf::fixture<SuiteFixture>(1))
 
