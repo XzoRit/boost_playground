@@ -1,5 +1,6 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 #include <iostream>
 #include <string>
 #include <algorithm>
@@ -8,7 +9,7 @@
 int main()
 {
   std::cout << "property_tree\n\n";
-  using boost::property_tree::ptree;
+  using namespace boost::property_tree;
   {
     ptree pt;
     pt.put("menu.foo", true);
@@ -20,10 +21,12 @@ int main()
     pt.put("menu.popup.onClick", "openDoc()");
 
     write_json("config.json", pt);
+    xml_writer_settings<std::string> settings{' ', 2};
+    write_xml ("config.xml" , pt, std::locale{}, settings);
   }
   {
     ptree pt;
-    read_json("example_json.json", pt);
+    read_json("config.json", pt);
     bool const menu_foo = pt.get<bool>("menu.foo");
     std::cout << "menu.foo = " << menu_foo << '\n';
     bool const menu_bar = pt.get<bool>("menu.bar");
