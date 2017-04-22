@@ -93,13 +93,20 @@ public:
     std::tuple<Ts&...> refs  ;
 };
 
+template<class ... Ts>
+restorer<Ts...> make_restorer(Ts& ... ts)
+{
+    return restorer<Ts...>{ts...};
+}
+
 BOOST_AUTO_TEST_SUITE(restorer_suite)
 
 BOOST_AUTO_TEST_CASE(ctor_takes_one_parameter)
 {
     int i{1};
     {
-        auto r = restorer<int>{i};
+        const auto& _{make_restorer(i)};
+        (void)_;
         i = 2;
     }
     BOOST_TEST(i == 1);
@@ -114,7 +121,8 @@ BOOST_AUTO_TEST_CASE(ctor_takes_many_parameters)
     auto ss       = strings        {};
     auto is_to_ss = ints_to_strings{};
     {
-        auto r = restorer<ints, strings, ints_to_strings>{is, ss, is_to_ss};
+        const auto& _{make_restorer(is, ss, is_to_ss)};
+        (void)_;
         is.push_back(123);
         ss.push_back("123");
         is_to_ss.insert({123, "123"});
