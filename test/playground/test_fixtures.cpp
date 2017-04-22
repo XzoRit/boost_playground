@@ -76,25 +76,33 @@ BOOST_AUTO_TEST_CASE(lambda_teardown_check)
 
 BOOST_AUTO_TEST_SUITE_END()
 
-template<class... T>
+template<class ... Ts>
 class restorer
 {
 public:
-    restorer(T... ts)
-        : m_values{std::make_tuple(ts...)}
+    restorer(Ts& ... ts)
+        : values{std::make_tuple(ts...)}
+        , refs  {std::tie       (ts...)}
     {
     }
-private:
-    std::tuple<T...> m_values;
+    ~restorer()
+    {
+        refs = values;
+    }
+    std::tuple<Ts... > values;
+    std::tuple<Ts&...> refs  ;
 };
 
 BOOST_AUTO_TEST_SUITE(restorer_suite)
 
 BOOST_AUTO_TEST_CASE(ctor_takes_one_parameter)
 {
-    using ints = std::vector<int>;
-    auto is = ints{};
-    auto r = restorer<ints>{is};
+    int i{1};
+    {
+        auto r = restorer<int>{i};
+        i = 2;
+    }
+    BOOST_TEST(i == 1);
 }
 
 BOOST_AUTO_TEST_CASE(ctor_takes_many_parameters)
@@ -105,7 +113,15 @@ BOOST_AUTO_TEST_CASE(ctor_takes_many_parameters)
     auto is       = ints           {};
     auto ss       = strings        {};
     auto is_to_ss = ints_to_strings{};
-    auto r = restorer<ints, strings, ints_to_strings>{is, ss, is_to_ss};
+    {
+        auto r = restorer<ints, strings, ints_to_strings>{is, ss, is_to_ss};
+        is.push_back(123);
+        ss.push_back("123");
+        is_to_ss.insert({123, "123"});
+    }
+    BOOST_TEST(is       == ints           {});
+    BOOST_TEST(ss       == strings        {});
+    BOOST_TEST(is_to_ss == ints_to_strings{});
 }
 
 BOOST_AUTO_TEST_SUITE_END()
