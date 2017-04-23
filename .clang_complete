@@ -1,0 +1,5 @@
+-I../boost
+-I../boost_di/include
+-I../boost_sml/sml/include
+-I../catch/single_include
+-std=c++1y
