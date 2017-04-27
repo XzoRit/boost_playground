@@ -89,3 +89,60 @@ BOOST_AUTO_TEST_CASE(wrap_work_for_being_dispatched_later)
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE_END()
+
+#include <boost/asio/time_traits.hpp>
+#include <chrono>
+
+    namespace boost
+    {
+        namespace asio
+        {
+            template<>
+            struct time_traits<std::chrono::steady_clock::time_point>
+            {
+                using clock_type = std::chrono::steady_clock;
+                using time_type = clock_type::time_point;
+                using duration_type = clock_type::duration;
+
+                static time_type now()
+                    {
+                        return clock_type::now();
+                    }
+
+                static time_type add(const time_type& t, const duration_type& d)
+                    {
+                        return t + d;
+                    }
+
+                static duration_type subtract(const time_type& t1, const time_type& t2)
+                    {
+                        return t1 - t2;
+                    }
+
+                static bool less_than(const time_type& t1, const time_type& t2)
+                    {
+                        return t1 < t2;
+                    }
+
+                static boost::posix_time::time_duration to_posix_duration(
+                    const duration_type& d)
+                    {
+                        return boost::posix_time::microseconds(
+                            std::chrono::duration_cast<std::chrono::microseconds>(d).count());
+                    }
+            };
+        }
+    }
+
+#include <boost/asio/basic_deadline_timer.hpp>
+
+using deadline_timer = boost::asio::basic_deadline_timer<std::chrono::steady_clock::time_point>;
+
+BOOST_AUTO_TEST_CASE(_1_)
+{
+    boost::asio::io_service io;
+
+    deadline_timer t{io, std::chrono::seconds{5}};
+
+    t.wait();
+}
