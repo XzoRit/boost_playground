@@ -70,6 +70,22 @@ BOOST_AUTO_TEST_CASE(reset_io_service_to_call_handlers_after_poll_one)
     BOOST_REQUIRE(called == 2);
 }
 
+BOOST_AUTO_TEST_CASE(wrap_work_for_being_dispatched_later)
+{
+    boost::asio::io_service io;
+
+    int called{0};
+    io.dispatch([&called](){ ++called; });
+    auto wrapped{io.wrap([&called](){ ++called; })};
+    wrapped();
+
+    BOOST_REQUIRE(io.poll_one() == 1);
+    BOOST_REQUIRE(called == 1);
+
+    BOOST_REQUIRE(io.poll_one() == 1);
+    BOOST_REQUIRE(called == 2);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE_END()
