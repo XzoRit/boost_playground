@@ -162,17 +162,25 @@ struct time_traits<std::chrono::steady_clock>
 
 #include <boost/asio/basic_deadline_timer.hpp>
 
-using boost::asio::basic_deadline_timer;
-
-using deadline_timer = basic_deadline_timer<std::chrono::steady_clock>;
-
-using boost::asio::io_service;
-
-BOOST_AUTO_TEST_CASE(_1_)
+BOOST_AUTO_TEST_CASE(std_chrono_sync_deadline_timer)
 {
+    using namespace std::chrono_literals;
+
+    using boost::asio::basic_deadline_timer;
+    using boost::asio::io_service;
+    using std::chrono::seconds;
+    using std::chrono::steady_clock;
+
+    using deadline_timer = basic_deadline_timer<steady_clock>;
+    using clock_type = deadline_timer::traits_type::clock_type;
+
     io_service io;
+    const auto waiting_time{5s};
 
-    deadline_timer t{io, std::chrono::seconds{5}};
-
+    const auto a{clock_type::now()};
+    deadline_timer t{io, waiting_time};
     t.wait();
+    const auto b{clock_type::now()};
+
+    BOOST_REQUIRE(b - a >= waiting_time);
 }
