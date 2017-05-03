@@ -1,13 +1,19 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/basic_deadline_timer.hpp>
+#include <boost/asio/error.hpp>
 #include <boost/asio/time_traits.hpp>
 #include <chrono>
+#include <thread>
 
+using namespace std;
 using namespace std::chrono_literals;
 using namespace boost;
 
+namespace b_sys = boost::system;
+
 using boost::asio::basic_deadline_timer;
+using boost::asio::error::operation_aborted;
 using boost::asio::io_service;
 using std::chrono::seconds;
 using std::chrono::steady_clock;
@@ -188,19 +194,52 @@ BOOST_AUTO_TEST_CASE(std_chrono_sync_deadline_timer)
 BOOST_AUTO_TEST_CASE(std_chrono_async_deadline_timer)
 {
     io_service io;
-
-    deadline_timer t{io, waiting_time};
     int called{0};
+
+    const auto a{clock_type::now()};
+    deadline_timer t{io, waiting_time};
+    t.async_wait([&called](const auto&)
+    {
+        ++called;
+    });
+    t.async_wait([&called](const auto&)
+    {
+        ++called;
+    });
     t.async_wait([&called](const auto&)
     {
         ++called;
     });
 
-    const auto a{clock_type::now()};
-    BOOST_REQUIRE(io.run() == 1);
+    BOOST_REQUIRE(io.run() == 3);
     const auto b{clock_type::now()};
 
     BOOST_REQUIRE(b - a >= waiting_time);
+    BOOST_REQUIRE(called == 3);
+}
+
+BOOST_AUTO_TEST_CASE(cancel_async_deadline_timer)
+{
+    io_service io;
+    b_sys::error_code error_code{};
+
+    deadline_timer t{io, waiting_time};
+    t.async_wait([&error_code](const auto& ec)
+    {
+        error_code = ec;
+    });
+    t.async_wait([&error_code](const auto& ec)
+    {
+        error_code = ec;
+    });
+    t.async_wait([&error_code](const auto& ec)
+    {
+        error_code = ec;
+    });
+    t.cancel();
+
+    BOOST_REQUIRE(io.run() == 3);
+    BOOST_REQUIRE(error_code == operation_aborted);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
