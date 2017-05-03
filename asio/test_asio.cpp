@@ -2,6 +2,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/basic_deadline_timer.hpp>
 #include <boost/asio/error.hpp>
+#include <boost/asio/steady_timer.hpp>
 #include <boost/asio/time_traits.hpp>
 #include <chrono>
 #include <thread>
@@ -10,59 +11,13 @@ using namespace std;
 using namespace std::chrono_literals;
 using namespace boost;
 
-namespace b_sys = boost::system;
+namespace boost_system = boost::system;
 
-using boost::asio::basic_deadline_timer;
 using boost::asio::error::operation_aborted;
 using boost::asio::io_service;
-using std::chrono::seconds;
-using std::chrono::steady_clock;
-using std::chrono::duration_cast;
-using std::chrono::microseconds;
 
-namespace boost
-{
-namespace asio
-{
-template<>
-struct time_traits<steady_clock>
-{
-    using clock_type = steady_clock;
-    using time_type = clock_type::time_point;
-    using duration_type = clock_type::duration;
-
-    static time_type now()
-    {
-        return clock_type::now();
-    }
-
-    static time_type add(const time_type& t, const duration_type& d)
-    {
-        return t + d;
-    }
-
-    static duration_type subtract(const time_type& t1, const time_type& t2)
-    {
-        return t1 - t2;
-    }
-
-    static bool less_than(const time_type& t1, const time_type& t2)
-    {
-        return t1 < t2;
-    }
-
-    static posix_time::time_duration to_posix_duration(
-        const duration_type& d)
-    {
-        return posix_time::microseconds(
-                   duration_cast<microseconds>(d).count());
-    }
-};
-}
-}
-
-using deadline_timer = basic_deadline_timer<steady_clock>;
-using clock_type = deadline_timer::traits_type::clock_type;
+using timeout_timer = boost::asio::steady_timer;
+using clock_type = timeout_timer::clock_type;
 
 const auto waiting_time{1s};
 
@@ -179,25 +134,25 @@ BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(timer)
 
-BOOST_AUTO_TEST_CASE(std_chrono_sync_deadline_timer)
+BOOST_AUTO_TEST_CASE(std_chrono_sync_timeout_timer)
 {
     io_service io;
 
     const auto a{clock_type::now()};
-    deadline_timer t{io, waiting_time};
+    timeout_timer t{io, waiting_time};
     t.wait();
     const auto b{clock_type::now()};
 
     BOOST_REQUIRE(b - a >= waiting_time);
 }
 
-BOOST_AUTO_TEST_CASE(std_chrono_async_deadline_timer)
+BOOST_AUTO_TEST_CASE(std_chrono_async_timeout_timer)
 {
     io_service io;
     int called{0};
 
     const auto a{clock_type::now()};
-    deadline_timer t{io, waiting_time};
+    timeout_timer t{io, waiting_time};
     t.async_wait([&called](const auto&)
     {
         ++called;
@@ -218,12 +173,12 @@ BOOST_AUTO_TEST_CASE(std_chrono_async_deadline_timer)
     BOOST_REQUIRE(called == 3);
 }
 
-BOOST_AUTO_TEST_CASE(cancel_async_deadline_timer)
+BOOST_AUTO_TEST_CASE(cancel_async_timeout_timer)
 {
     io_service io;
-    b_sys::error_code error_code{};
+    boost_system::error_code error_code{};
 
-    deadline_timer t{io, waiting_time};
+    timeout_timer t{io, waiting_time};
     t.async_wait([&error_code](const auto& ec)
     {
         error_code = ec;
