@@ -6,6 +6,20 @@
 #include <boost/asio/time_traits.hpp>
 #include <chrono>
 #include <thread>
+#include <iostream>
+
+namespace std
+{
+    namespace chrono
+    {
+        template<class rep, class per>
+        ostream& operator<<(ostream& str, const duration<rep, per>& d)
+        {
+            str << d.count();
+            return str;
+        }
+    }
+}
 
 using namespace std;
 using namespace std::chrono_literals;
@@ -137,9 +151,10 @@ BOOST_AUTO_TEST_SUITE(timer)
 BOOST_AUTO_TEST_CASE(std_chrono_sync_timeout_timer)
 {
     io_service io;
+    timeout_timer t{io};
 
     const auto a{clock_type::now()};
-    timeout_timer t{io, waiting_time};
+    t.expires_from_now(waiting_time);
     t.wait();
     const auto b{clock_type::now()};
 
@@ -149,27 +164,24 @@ BOOST_AUTO_TEST_CASE(std_chrono_sync_timeout_timer)
 BOOST_AUTO_TEST_CASE(std_chrono_async_timeout_timer)
 {
     io_service io;
+    timeout_timer t{io};
     int called{0};
 
-    const auto a{clock_type::now()};
-    timeout_timer t{io, waiting_time};
-    t.async_wait([&called](const auto&)
+    BOOST_REQUIRE(t.expires_from_now(waiting_time) == 0);
+    t.async_wait([&called](const auto& e)
     {
-        ++called;
+        if (e != boost::asio::error::operation_aborted) ++called;
     });
-    t.async_wait([&called](const auto&)
+    t.async_wait([&called](const auto& e)
     {
-        ++called;
+        if (e != boost::asio::error::operation_aborted) ++called;
     });
-    t.async_wait([&called](const auto&)
+    t.async_wait([&called](const auto& e)
     {
-        ++called;
+        if (e != boost::asio::error::operation_aborted) ++called;
     });
 
     BOOST_REQUIRE(io.run() == 3);
-    const auto b{clock_type::now()};
-
-    BOOST_REQUIRE(b - a >= waiting_time);
     BOOST_REQUIRE(called == 3);
 }
 
