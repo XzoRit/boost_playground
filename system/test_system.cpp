@@ -54,7 +54,7 @@ BOOST_FIXTURE_TEST_CASE(error_codes_catagory_by_default_is_generic, fixture)
 
 BOOST_AUTO_TEST_SUITE_END()
 
-enum app_errc
+enum class app_errc
 {
     success = 0,
     failure
@@ -76,11 +76,16 @@ public:
 
 const app_cat_t app_cat;
 
+error_code make_error_code(app_errc ec)
+{
+    return error_code(static_cast<int>(ec), app_cat);
+}
+
 BOOST_AUTO_TEST_SUITE(app_error_code)
 
 BOOST_AUTO_TEST_CASE(app_errc_construction)
 {
-    error_code ec{app_errc::success, app_cat};
+    error_code ec{make_error_code(app_errc::success)};
 
     BOOST_REQUIRE(!ec);
 }
