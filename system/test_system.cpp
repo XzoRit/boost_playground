@@ -35,6 +35,7 @@ BOOST_AUTO_TEST_SUITE(boost_system)
 BOOST_FIXTURE_TEST_CASE(default_constructed_error_code_is_no_error, fixture)
 {
     BOOST_REQUIRE(!ec);
+    BOOST_REQUIRE_EQUAL(ec, (error_code{0, system_category()}));
 }
 
 BOOST_FIXTURE_TEST_CASE(set_error_code_is_implicitly_true, fixture)
