@@ -13,6 +13,7 @@ namespace boost::system
     }
 }
 
+using namespace std::string_literals;
 using namespace boost::system;
 
 class fixture
@@ -48,6 +49,39 @@ BOOST_FIXTURE_TEST_CASE(error_codes_catagory_by_default_is_generic, fixture)
     not_ok(ec);
 
     BOOST_REQUIRE_EQUAL(ec.category(), generic_category());
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+enum app_errc
+{
+    success = 0,
+    failure
+};
+
+class app_cat_t : public error_category
+{
+public:
+    const char* name() const noexcept override
+        {
+            return "app";
+        }
+
+    std::string message(int ev) const noexcept override
+        {
+            return "app error: "s + std::to_string(ev);
+        }
+};
+
+const app_cat_t app_cat;
+
+BOOST_AUTO_TEST_SUITE(app_error_code)
+
+BOOST_AUTO_TEST_CASE(app_errc_construction)
+{
+    error_code ec{app_errc::success, app_cat};
+
+    BOOST_REQUIRE(!ec);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
