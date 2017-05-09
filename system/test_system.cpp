@@ -81,6 +81,9 @@ error_code make_error_code(app_errc ec)
     return error_code(static_cast<int>(ec), app_cat);
 }
 
+const error_code ec_app_succ{make_error_code(app_errc::success)};
+const error_code ec_app_fail{make_error_code(app_errc::failure)};
+
 enum class lib_errc
 {
     success = 0,
@@ -108,14 +111,14 @@ error_code make_error_code(lib_errc ec)
     return error_code(static_cast<int>(ec), lib_cat);
 }
 
+const error_code ec_lib_succ{make_error_code(lib_errc::success)};
+const error_code ec_lib_fail{make_error_code(lib_errc::failure)};
+
 class my_error_code_fixture
 {
 public:
     my_error_code_fixture() {}
     ~my_error_code_fixture(){}
-
-    error_code ec_app_succ{make_error_code(app_errc::success)};
-    error_code ec_app_fail{make_error_code(app_errc::failure)};
 };
 
 BOOST_AUTO_TEST_SUITE(my_error_code)
@@ -126,16 +129,13 @@ BOOST_FIXTURE_TEST_CASE(my_errc_construction, my_error_code_fixture)
     BOOST_REQUIRE( ec_app_fail);
     BOOST_REQUIRE_EQUAL(ec_app_succ.message(), "app error: 0");
     BOOST_REQUIRE_EQUAL(ec_app_fail.message(), "app error: 1");
-
-    BOOST_REQUIRE_EQUAL(ec_app_succ, make_error_code(app_errc::success));
-    BOOST_REQUIRE_EQUAL(ec_app_fail, make_error_code(app_errc::failure));
-    BOOST_REQUIRE_NE(ec_app_succ, ec_app_fail);
 }
 
 BOOST_FIXTURE_TEST_CASE(my_errc_comparison, my_error_code_fixture)
 {
-    error_code ec_lib_succ{make_error_code(lib_errc::success)};
-    error_code ec_lib_fail{make_error_code(lib_errc::failure)};
+    BOOST_REQUIRE_EQUAL(ec_app_succ, make_error_code(app_errc::success));
+    BOOST_REQUIRE_EQUAL(ec_app_fail, make_error_code(app_errc::failure));
+    BOOST_REQUIRE_NE(ec_app_succ, ec_app_fail);
 
     BOOST_REQUIRE_NE(ec_lib_succ, ec_app_succ);
     BOOST_REQUIRE_NE(ec_lib_succ, ec_app_fail);
