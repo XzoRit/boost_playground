@@ -1,0 +1,25 @@
+path-constant build_folder
+    : ./build
+    ;
+
+project
+    : default-build debug
+    : build-dir $(build_folder)
+    : requirements <cxxflags>-std=c++1z
+      <warnings>all
+      <warnings-as-errors>on
+    ;
+
+build-project asio          ;
+build-project b2            ;
+build-project coroutine     ;
+build-project di            ;
+build-project exception     ;
+build-project hana          ;
+build-project mock          ;
+build-project property_tree ;
+build-project serialization ;
+build-project sml           ;
+build-project spirit        ;
+build-project system        ;
+build-project test          ;
