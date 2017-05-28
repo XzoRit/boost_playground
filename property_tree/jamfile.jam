@@ -1,0 +1,17 @@
+import boost ;
+
+boost.use-project ;
+
+exe property_tree
+  : main.cpp
+  : <use>/boost//headers
+  ;
+
+import testing ;
+
+unit-test exec_property_tree
+  : property_tree
+  : <testing.arg>""
+  ;
+
+always exec_property_tree ;

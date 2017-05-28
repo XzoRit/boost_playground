@@ -6,23 +6,9 @@ import boost ;
 # call 'b2 --help boost' for more infos
 boost.use-project ;
 
-path-constant build_folder
-    : ./build
-    ;
-
-project boost_build_playground
-    : default-build debug
-    : build-dir $(build_folder)
-    : requirements <cxxflags>-std=c++1z
-      <warnings>all
-      <warnings-as-errors>on
-    ;
-
 build-project app ;
 
-path-constant install_folder
-    : ./bin
-    ;
+local install_folder = $(build_folder)/bin ;
 
 install install_app
     : app

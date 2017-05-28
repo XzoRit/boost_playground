@@ -1,6 +1,6 @@
 import testing ;
 
-local install_folder = ../bin ;
+local install_folder = $(build_folder)/bin ;
 
 exe sml_playground
     : main.cpp

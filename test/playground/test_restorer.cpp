@@ -69,43 +69,43 @@ BOOST_AUTO_TEST_CASE(restorer_in_use)
 {
     vector<int> v( 5 );
 
-    BOOST_TEST(v.size() == 5);
-    BOOST_TEST(v.capacity() >= 5);
+    BOOST_TEST( v.size() == 5u );
+    BOOST_TEST( v.capacity() >= 5u );
 
     {
         auto _{make_restorer(v)};
 
         v.resize(10);
 
-        BOOST_TEST( v.size() == 10 );
-        BOOST_TEST( v.capacity() >= 10 );
+        BOOST_TEST( v.size() == 10u );
+        BOOST_TEST( v.capacity() >= 10u );
     }
     {
         auto _{make_restorer(v)};
         v.resize( 0 );
 
-        BOOST_TEST( v.size() == 0 );
-        BOOST_TEST( v.capacity() >= 5 );
+        BOOST_TEST( v.size() == 0u );
+        BOOST_TEST( v.capacity() >= 5u );
     }
     {
         auto _{make_restorer(v)};
         v.reserve( 10 );
 
-        BOOST_TEST( v.size() == 5 );
-        BOOST_TEST( v.capacity() >= 10 );
+        BOOST_TEST( v.size() == 5u );
+        BOOST_TEST( v.capacity() >= 10u );
         {
             auto _{make_restorer(v)};
             v.reserve( 7 );
 
-            BOOST_TEST( v.capacity() >= 10 );
+            BOOST_TEST( v.capacity() >= 10u );
         }
     }
     {
         auto _{make_restorer(v)};
         v.reserve( 0 );
 
-        BOOST_TEST( v.size() == 5 );
-        BOOST_TEST( v.capacity() >= 5 );
+        BOOST_TEST( v.size() == 5u );
+        BOOST_TEST( v.capacity() >= 5u );
     }
 }
 

@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_SUITE(test_fixtures
 BOOST_AUTO_TEST_CASE(fixture_decorator_on_test_suite)
 {
     BOOST_TEST(!container.empty());
-    BOOST_TEST(container.size() == 1);
+    BOOST_TEST(container.size() == 1u);
     BOOST_TEST(*begin(container) == 1);
 }
 
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(fixture_decorator_on_test_case
                      , *utf::fixture(setup, teardown))
 {
     BOOST_TEST(!container.empty());
-    BOOST_TEST(container.size() == 3);
+    BOOST_TEST(container.size() == 3u);
 
     array<int, 3> expected = {{1, 22, 333}};
     BOOST_TEST(expected == container, tt::per_element());
@@ -61,13 +61,13 @@ BOOST_AUTO_TEST_CASE(lambda_setup_teardown
                          [] { container.push_back(55555);}))
 {
     BOOST_TEST(!container.empty());
-    BOOST_TEST(container.size() == 1);
+    BOOST_TEST(container.size() == 1u);
     BOOST_TEST(*begin(container) == 4444);
 }
 
 BOOST_AUTO_TEST_CASE(lambda_teardown_check)
 {
-    BOOST_TEST(container.size() == 2);
+    BOOST_TEST(container.size() == 2u);
 
     array<int, 2> expected = {{4444, 55555}};
 

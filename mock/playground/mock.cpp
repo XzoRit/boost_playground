@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(test_stream_result_via_mock_stream)
 
     MOCK_EXPECT(v.display).once().with(Result(0)).returns(true);
 
-   c.add(1, 2);
+   c.add(1, -1);
 }
 
 BOOST_AUTO_TEST_CASE(test_throws_exception)
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(test_custom_constraint_type)
 
     MOCK_EXPECT(v.display).once().with(CustomConstraintType()).returns(true);
 
-   c.add(1, 2);
+   c.add(1, 1);
 }
 
 template<class Expected>
@@ -185,5 +185,5 @@ BOOST_AUTO_TEST_CASE(test_custom_templated_stateful_constraint)
     expected = 4;
     threshold = 1;
 
-   c.add(1, 2);
+   c.add(1, 3);
 }

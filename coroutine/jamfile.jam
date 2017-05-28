@@ -1,0 +1,21 @@
+import boost ;
+
+boost.use-project ;
+
+exe coroutine
+    : main.cpp /boost//coroutine
+    : <cxxflags>-std=c++03
+      <warnings-as-errors>off
+      # coroutine is deprecated and should be replaced by coroutine2
+      # but coroutine2 is written in c++11 and I want to write c++03
+      # code so we disable warnings being treated as errors
+    :
+    : <variant>debug ;
+
+import testing ;
+
+unit-test exec_coroutine
+    : coroutine
+    ;
+
+always exec_coroutine ;

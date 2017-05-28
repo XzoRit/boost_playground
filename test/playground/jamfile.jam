@@ -1,3 +1,7 @@
+import boost ;
+
+boost.use-project ;
+
 import testing ;
 
 run [ glob test_*.cpp ] main.cpp

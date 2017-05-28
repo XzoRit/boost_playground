@@ -1,14 +1,18 @@
-import testing ;
-
-project
-    : default-build debug
-    : build-dir ./build ;
-
 build-project playground ;
+
+local install_folder = $(build_folder)/bin ;
 
 install install_hana_playground
     : playground
-    : <install-dependencies>on <install-type>EXE <install-type>LIB ;
+    : <toolset>clang:<location>$(install_folder)/clang
+      <toolset>darwin:<location>$(install_folder)/darwin
+      <install-dependencies>on
+      <install-type>EXE
+      <install-type>LIB
+    ;
+
+import testing ;
 
 unit-test test_hana_playground
-    : playground ;
+    : playground
+    ;
