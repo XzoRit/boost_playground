@@ -81,6 +81,13 @@ error_code make_error_code(app_errc ec)
     return error_code(static_cast<int>(ec), app_cat);
 }
 
+namespace std
+{
+    template<>
+    struct is_error_code_enum<app_errc> : std::true_type
+    {};
+}
+
 const error_code ec_app_succ{make_error_code(app_errc::success)};
 const error_code ec_app_fail{make_error_code(app_errc::failure)};
 
@@ -109,6 +116,13 @@ const lib_cat_t lib_cat;
 error_code make_error_code(lib_errc ec)
 {
     return error_code(static_cast<int>(ec), lib_cat);
+}
+
+namespace std
+{
+    template<>
+    struct is_error_code_enum<lib_errc> : std::true_type
+    {};
 }
 
 const error_code ec_lib_succ{make_error_code(lib_errc::success)};
@@ -141,6 +155,12 @@ BOOST_FIXTURE_TEST_CASE(my_errc_comparison, my_error_code_fixture)
     BOOST_REQUIRE_NE(ec_lib_succ, ec_app_fail);
     BOOST_REQUIRE_NE(ec_lib_fail, ec_app_succ);
     BOOST_REQUIRE_NE(ec_lib_fail, ec_app_fail);
+}
+
+BOOST_FIXTURE_TEST_CASE(my_errcs_are_recognized_by_stl, my_error_code_fixture)
+{
+    static_assert(std::is_error_code_enum<app_errc>::value, "");
+    static_assert(std::is_error_code_enum<lib_errc>::value, "");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
