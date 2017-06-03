@@ -1,6 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #define BOOST_SYSTEM_NO_DEPRECATED
 #include <boost/system/error_code.hpp>
+#include <boost/system/system_error.hpp>
 
 #include <ostream>
 
@@ -81,7 +82,7 @@ error_code make_error_code(app_errc ec)
     return error_code(static_cast<int>(ec), app_cat);
 }
 
-namespace std
+namespace boost::system
 {
     template<>
     struct is_error_code_enum<app_errc> : std::true_type
@@ -118,7 +119,7 @@ error_code make_error_code(lib_errc ec)
     return error_code(static_cast<int>(ec), lib_cat);
 }
 
-namespace std
+namespace boost::system
 {
     template<>
     struct is_error_code_enum<lib_errc> : std::true_type
@@ -159,8 +160,8 @@ BOOST_FIXTURE_TEST_CASE(my_errc_comparison, my_error_code_fixture)
 
 BOOST_FIXTURE_TEST_CASE(my_errcs_are_recognized_by_stl, my_error_code_fixture)
 {
-    static_assert(std::is_error_code_enum<app_errc>::value, "");
-    static_assert(std::is_error_code_enum<lib_errc>::value, "");
+    static_assert(is_error_code_enum<app_errc>::value, "");
+    static_assert(is_error_code_enum<lib_errc>::value, "");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
