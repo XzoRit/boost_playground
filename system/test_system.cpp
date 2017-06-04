@@ -164,4 +164,16 @@ BOOST_FIXTURE_TEST_CASE(my_errcs_are_recognized_by_stl, my_error_code_fixture)
     static_assert(is_error_code_enum<lib_errc>::value, "");
 }
 
+BOOST_FIXTURE_TEST_CASE(my_errcs_can_be_thrown_as_system_error, my_error_code_fixture)
+{
+    BOOST_REQUIRE_EXCEPTION(
+        throw system_error(ec_app_fail),
+        system_error,
+        [](const auto& e){ return e.code() == ec_app_fail; });
+    BOOST_REQUIRE_EXCEPTION(
+        throw system_error(ec_lib_fail),
+        system_error,
+        [](const auto& e){ return e.code() == ec_lib_fail; });
+}
+
 BOOST_AUTO_TEST_SUITE_END()
