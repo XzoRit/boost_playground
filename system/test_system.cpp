@@ -1,4 +1,5 @@
 #include <boost/test/unit_test.hpp>
+
 #define BOOST_SYSTEM_NO_DEPRECATED
 #include <boost/system/error_code.hpp>
 #include <boost/system/system_error.hpp>
@@ -55,44 +56,77 @@ BOOST_FIXTURE_TEST_CASE(error_codes_catagory_by_default_is_generic, boost_system
 
 BOOST_AUTO_TEST_SUITE_END()
 
-enum class app_errc
+namespace app
 {
-    success = 0,
-    failure
-};
-
-class app_cat_t : public error_category
-{
-public:
-    const char* name() const noexcept override
+    class error_category_type : public error_category
     {
-        return "app";
-    }
+    public:
+        const char* name() const noexcept override final;
+        std::string message(int ev) const noexcept override final;
+    };
 
-    std::string message(int ev) const noexcept override
-    {
-        return "app error: "s + std::to_string(ev);
-    }
-};
+    const error_category_type& error_category();
+}
 
-const app_cat_t app_cat;
-
-error_code make_error_code(app_errc ec)
+namespace app
 {
-    return error_code(static_cast<int>(ec), app_cat);
+    class error : public error_code
+    {
+    public:
+        enum type
+        {
+            success = 0,
+            failure
+        };
+        error() = default;
+        explicit error(type e);
+    };
+
+    error_code make_error_code(error::type ec);
+
+    const error_code ec_succ{make_error_code(error::success)};
+    const error_code ec_fail{make_error_code(error::failure)};
 }
 
 namespace boost::system
 {
     template<>
-    struct is_error_code_enum<app_errc> : std::true_type
+    struct is_error_code_enum<app::error::type> : boost::true_type
     {};
 }
 
-const error_code ec_app_succ{make_error_code(app_errc::success)};
-const error_code ec_app_fail{make_error_code(app_errc::failure)};
+namespace app
+{
+    inline const char* error_category_type::name() const noexcept
+    {
+        return "app";
+    }
 
-enum class lib_errc
+    inline std::string error_category_type::message(int ev) const noexcept
+    {
+        return "app error: "s + std::to_string(ev);
+    }
+
+    inline const error_category_type& error_category()
+    {
+        static error_category_type c;
+        return c;
+    }
+}
+
+namespace app
+{
+    inline error::error(error::type e)
+        : error_code(e, error_category())
+    {}
+
+    inline error_code make_error_code(error::type ec)
+    {
+        return error(ec);
+    }
+}
+
+enum lib_errc
 {
     success = 0,
     failure
@@ -140,36 +174,36 @@ BOOST_AUTO_TEST_SUITE(my_error_code)
 
 BOOST_FIXTURE_TEST_CASE(my_errc_construction, my_error_code_fixture)
 {
-    BOOST_REQUIRE(!ec_app_succ);
-    BOOST_REQUIRE( ec_app_fail);
-    BOOST_REQUIRE_EQUAL(ec_app_succ.message(), "app error: 0");
-    BOOST_REQUIRE_EQUAL(ec_app_fail.message(), "app error: 1");
+    BOOST_REQUIRE(!app::ec_succ);
+    BOOST_REQUIRE( app::ec_fail);
+    BOOST_REQUIRE_EQUAL(app::ec_succ.message(), "app error: 0");
+    BOOST_REQUIRE_EQUAL(app::ec_fail.message(), "app error: 1");
 }
 
 BOOST_FIXTURE_TEST_CASE(my_errc_comparison, my_error_code_fixture)
 {
-    BOOST_REQUIRE_EQUAL(ec_app_succ, make_error_code(app_errc::success));
-    BOOST_REQUIRE_EQUAL(ec_app_fail, make_error_code(app_errc::failure));
-    BOOST_REQUIRE_NE(ec_app_succ, ec_app_fail);
+    BOOST_REQUIRE_EQUAL(app::ec_succ, make_error_code(app::error::success));
+    BOOST_REQUIRE_EQUAL(app::ec_fail, make_error_code(app::error::failure));
+    BOOST_REQUIRE_NE(app::ec_succ, app::ec_fail);
 
-    BOOST_REQUIRE_NE(ec_lib_succ, ec_app_succ);
-    BOOST_REQUIRE_NE(ec_lib_succ, ec_app_fail);
-    BOOST_REQUIRE_NE(ec_lib_fail, ec_app_succ);
-    BOOST_REQUIRE_NE(ec_lib_fail, ec_app_fail);
+    BOOST_REQUIRE_NE(ec_lib_succ, app::ec_succ);
+    BOOST_REQUIRE_NE(ec_lib_succ, app::ec_fail);
+    BOOST_REQUIRE_NE(ec_lib_fail, app::ec_succ);
+    BOOST_REQUIRE_NE(ec_lib_fail, app::ec_fail);
 }
 
 BOOST_FIXTURE_TEST_CASE(my_errcs_are_recognized_by_stl, my_error_code_fixture)
 {
-    static_assert(is_error_code_enum<app_errc>::value, "");
+    static_assert(is_error_code_enum<app::error::type>::value, "");
     static_assert(is_error_code_enum<lib_errc>::value, "");
 }
 
 BOOST_FIXTURE_TEST_CASE(my_errcs_can_be_thrown_as_system_error, my_error_code_fixture)
 {
     BOOST_REQUIRE_EXCEPTION(
-        throw system_error(ec_app_fail),
+        throw system_error(app::ec_fail),
         system_error,
-        [](const auto& e){ return e.code() == ec_app_fail; });
+        [](const auto& e){ return e.code() == app::ec_fail; });
     BOOST_REQUIRE_EXCEPTION(
         throw system_error(ec_lib_fail),
         system_error,
