@@ -18,6 +18,7 @@ build-project exception     ;
 build-project hana          ;
 build-project mock          ;
 build-project property_tree ;
+build-project outcome       ;
 build-project serialization ;
 build-project sml           ;
 build-project spirit        ;
