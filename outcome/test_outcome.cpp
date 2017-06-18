@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <functional>
 #include <memory>
+#include <exception>
 
 namespace clib
 {
@@ -76,6 +77,23 @@ namespace file_utils
     }
     namespace v2
     {
+        std::unique_ptr<handle> openfile(const char* path) noexcept
+        {
+            int file_descriptor = clib::open(path);
+
+            if(file_descriptor != clib::valid_file_descriptor)
+            {
+                return nullptr;
+            }
+
+            try { return std::make_unique<handle>(file_descriptor); }
+            catch(...) {}
+
+            return nullptr;
+        }
+    }
+    namespace v3
+    {
         std::unique_ptr<handle> openfile(const char* path)
         {
             int file_descriptor = clib::open(path);
@@ -98,11 +116,15 @@ struct fixture
 
 namespace utf = boost::unit_test;
 
+const auto ret_invalid_file_descriptor =
+    [](auto){ return clib::invalid_file_descriptor; };
+
 BOOST_AUTO_TEST_SUITE(file)
+
+using namespace file_utils;
 
 BOOST_AUTO_TEST_SUITE(v1)
 
-using namespace file_utils;
 using namespace file_utils::v1;
 
 BOOST_FIXTURE_TEST_CASE(no_error, fixture)
@@ -119,13 +141,37 @@ BOOST_FIXTURE_TEST_CASE(no_memory, fixture)
     BOOST_CHECK_EQUAL(openfile(&file, "./foo.txt"), error::no_mem);
 }
 
-BOOST_AUTO_TEST_CASE(not_found)
+BOOST_FIXTURE_TEST_CASE(not_found, fixture)
 {
-    handle* file;
-
-    clib::open_func = [](auto){ return clib::invalid_file_descriptor; };
+    clib::open_func = ret_invalid_file_descriptor;
 
     BOOST_CHECK_EQUAL(openfile(&file, "./foo.txt"), error::not_found);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(v2)
+
+using namespace file_utils::v2;
+
+BOOST_FIXTURE_TEST_CASE(no_error, fixture)
+{
+    if (std::unique_ptr<handle> f = openfile("./foo.txt"))
+    {
+        (void)f;
+    }
+    else BOOST_TEST_FAIL("handle shall be created");
+}
+
+BOOST_FIXTURE_TEST_CASE(not_found, fixture)
+{
+    clib::open_func = ret_invalid_file_descriptor;
+
+    if (std::unique_ptr<handle> f = openfile("./foo.txt"))
+    {
+        (void)f;
+        BOOST_TEST_FAIL("handle shall not be created");
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
