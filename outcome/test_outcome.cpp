@@ -3,6 +3,9 @@
 #include <functional>
 #include <memory>
 #include <exception>
+#include <string>
+
+using namespace std::string_literals;
 
 namespace clib
 {
@@ -119,6 +122,9 @@ namespace utf = boost::unit_test;
 const auto ret_invalid_file_descriptor =
     [](auto){ return clib::invalid_file_descriptor; };
 
+const auto check_file_not_found =
+    [](const auto& e) { return e.what() == "file not found"s; };
+
 BOOST_AUTO_TEST_SUITE(file)
 
 using namespace file_utils;
@@ -172,6 +178,31 @@ BOOST_FIXTURE_TEST_CASE(not_found, fixture)
         (void)f;
         BOOST_TEST_FAIL("handle shall not be created");
     }
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(v3)
+
+using namespace file_utils::v3;
+
+BOOST_FIXTURE_TEST_CASE(no_error, fixture)
+{
+    if (std::unique_ptr<handle> f = openfile("./foo.txt"))
+    {
+        (void)f;
+    }
+    else BOOST_TEST_FAIL("handle shall be created");
+}
+
+BOOST_FIXTURE_TEST_CASE(not_found, fixture)
+{
+    clib::open_func = ret_invalid_file_descriptor;
+
+    BOOST_CHECK_EXCEPTION(
+        openfile("./foo.txt"),
+        std::runtime_error,
+        check_file_not_found);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
