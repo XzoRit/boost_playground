@@ -1,6 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <cstdlib>
 #include <functional>
+#include <memory>
 
 namespace clib
 {
@@ -10,12 +11,13 @@ namespace clib
     const int valid_file_descriptor   =  0;
     const int invalid_file_descriptor = -1;
 
-    using open_func_t = std::function<int(const char*, const char*)>;
-    open_func_t open_func = [](auto, auto){ return valid_file_descriptor; };
+    using open_func_t = std::function<int(const char*)>;
+    const auto ret_valid_file_descriptor = [](auto){ return valid_file_descriptor; };
+    open_func_t open_func = ret_valid_file_descriptor;
 
-    int open(const char* a, const char* b)
+    int open(const char* path)
     {
-        return open_func(a, b);
+        return open_func(path);
     }
 
     void* malloc(std::size_t size)
@@ -23,9 +25,15 @@ namespace clib
         return malloc_func(size);
     }
 
+    void free(int)
+    {
+        // stub
+    }
+
     void init()
     {
         malloc_func = std::malloc;
+        open_func   = ret_valid_file_descriptor;
     }
 }
 
@@ -33,6 +41,13 @@ namespace file_utils
 {
     struct handle
     {
+        explicit handle(int fd)
+            : file_descriptor(fd)
+            {}
+        ~handle()
+            {
+                if (file_descriptor != -1) clib::free(file_descriptor);
+            }
         int file_descriptor;
     };
 
@@ -48,7 +63,7 @@ namespace file_utils
             *out = (handle*)clib::malloc(sizeof(struct handle));
             if(!*out) return error::no_mem;
 
-            (*out)->file_descriptor = clib::open(path, "r");
+            (*out)->file_descriptor = clib::open(path);
             if((*out)->file_descriptor == -1)
             {
                 std::free(*out);
@@ -57,6 +72,19 @@ namespace file_utils
             }
 
             return error::none;
+        }
+    }
+    namespace v2
+    {
+        std::unique_ptr<handle> openfile(const char* path)
+        {
+            int file_descriptor = clib::open(path);
+            if(file_descriptor != clib::valid_file_descriptor)
+            {
+                throw std::runtime_error("file not found");
+            }
+
+            return std::make_unique<handle>(file_descriptor);
         }
     }
 }
@@ -95,7 +123,7 @@ BOOST_AUTO_TEST_CASE(not_found)
 {
     handle* file;
 
-    clib::open_func = [](auto, auto){ return clib::invalid_file_descriptor; };
+    clib::open_func = [](auto){ return clib::invalid_file_descriptor; };
 
     BOOST_CHECK_EQUAL(openfile(&file, "./foo.txt"), error::not_found);
 }
