@@ -80,22 +80,30 @@ namespace file_utils
     }
     namespace v2
     {
+        handle* openfile(const char* path)
+        {
+            int file_descriptor = clib::open(path);
+
+            if(file_descriptor != clib::valid_file_descriptor) return NULL;
+
+            return new handle(file_descriptor);
+        }
+    }
+    namespace v3
+    {
         std::unique_ptr<handle> openfile(const char* path) noexcept
         {
             int file_descriptor = clib::open(path);
 
-            if(file_descriptor != clib::valid_file_descriptor)
-            {
-                return nullptr;
-            }
+            if(file_descriptor != clib::valid_file_descriptor) return{};
 
             try { return std::make_unique<handle>(file_descriptor); }
             catch(...) {}
 
-            return nullptr;
+            return {};
         }
     }
-    namespace v3
+    namespace v4
     {
         std::unique_ptr<handle> openfile(const char* path)
         {
@@ -162,6 +170,32 @@ using namespace file_utils::v2;
 
 BOOST_FIXTURE_TEST_CASE(no_error, fixture)
 {
+    if (handle* f = openfile("./foo.txt"))
+    {
+        delete f;
+    }
+    else BOOST_TEST_FAIL("handle shall be created");
+}
+
+BOOST_FIXTURE_TEST_CASE(not_found, fixture)
+{
+    clib::open_func = ret_invalid_file_descriptor;
+
+    if (handle* f = openfile("./foo.txt"))
+    {
+        delete f;
+        BOOST_TEST_FAIL("handle shall not be created");
+    }
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(v3)
+
+using namespace file_utils::v3;
+
+BOOST_FIXTURE_TEST_CASE(no_error, fixture)
+{
     if (std::unique_ptr<handle> f = openfile("./foo.txt"))
     {
         (void)f;
@@ -182,9 +216,9 @@ BOOST_FIXTURE_TEST_CASE(not_found, fixture)
 
 BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_AUTO_TEST_SUITE(v3)
+BOOST_AUTO_TEST_SUITE(v4)
 
-using namespace file_utils::v3;
+using namespace file_utils::v4;
 
 BOOST_FIXTURE_TEST_CASE(no_error, fixture)
 {
