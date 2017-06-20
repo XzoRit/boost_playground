@@ -1,9 +1,10 @@
 #include <boost/test/unit_test.hpp>
 #include <cstdlib>
+#include <exception>
 #include <functional>
 #include <memory>
-#include <exception>
 #include <string>
+#include <system_error>
 
 using namespace std::string_literals;
 
@@ -116,13 +117,36 @@ namespace file_utils
             return std::make_unique<handle>(file_descriptor);
         }
     }
+    namespace v5
+    {
+        std::unique_ptr<handle> openfile(std::error_code& ec, const char* path)
+        {
+            ec.clear();
+            int file_descriptor = clib::open(path);
+            if(file_descriptor != clib::valid_file_descriptor)
+            {
+                ec = std::make_error_code(std::errc::bad_file_descriptor);
+                return {};
+            }
+
+            auto* a = new(std::nothrow) handle(file_descriptor);
+            if(!a)
+            {
+                clib::free(file_descriptor);
+            }
+
+            return std::unique_ptr<handle>{a};
+        }
+    }
 }
 
 struct fixture
 {
      fixture() { clib::init(); }
     ~fixture() { clib::init(); }
+
     file_utils::handle* file;
+    std::error_code ec;
 };
 
 namespace utf = boost::unit_test;
@@ -237,6 +261,32 @@ BOOST_FIXTURE_TEST_CASE(not_found, fixture)
         openfile("./foo.txt"),
         std::runtime_error,
         check_file_not_found);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(v5)
+
+using namespace file_utils::v5;
+
+BOOST_FIXTURE_TEST_CASE(no_error, fixture)
+{
+    std::unique_ptr<handle> f = openfile(ec, "./foo.txt");
+
+    BOOST_TEST(!ec);
+
+    (void)f;
+}
+
+BOOST_FIXTURE_TEST_CASE(not_found, fixture)
+{
+    clib::open_func = ret_invalid_file_descriptor;
+
+    std::unique_ptr<handle> f = openfile(ec, "./foo.txt");
+
+    BOOST_TEST(ec);
+
+    (void)f;
 }
 
 BOOST_AUTO_TEST_SUITE_END()
