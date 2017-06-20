@@ -72,7 +72,7 @@ namespace file_utils
             if((*out)->file_descriptor == -1)
             {
                 std::free(*out);
-                *out = nullptr;
+                *out = NULL;
                 return error::not_found;
             }
 
