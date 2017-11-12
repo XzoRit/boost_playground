@@ -2,4 +2,6 @@
 -I../boost_di/include
 -I../boost_sml/sml/include
 -I../boost_mock/turtle/include
--std=c++1y
+-I./spirit/Catch2/single_include
+-I./spirit/Catch2/third_party
+-std=c++17
