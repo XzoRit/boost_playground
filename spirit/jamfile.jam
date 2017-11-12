@@ -1,2 +1,11 @@
+local catch_include_folder = ./Catch2/single_include ;
+local clara_include_folder = ./Catch2/third_party ;
+
+project spirit
+    : requirements
+      <toolset>darwin:<cxxflags>-isystem$(catch_include_folder)
+      <toolset>darwin:<cxxflags>-isystem$(clara_include_folder)
+    ;
+
 build-project frame ;
 build-project solution ;

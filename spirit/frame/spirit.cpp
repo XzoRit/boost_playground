@@ -4,6 +4,7 @@
 
 #define CATCH_CONFIG_RUNNER
 #include <catch.hpp>
+#include <clara.hpp>
 
 #include <string>
 #include <fstream>
@@ -211,7 +212,7 @@ public:
 }
 }
 
-int main(int argc, char* const argv[])
+int main(int argc, char* argv[])
 {
   int result = Catch::Session().run(argc, argv);
   if(result) return result;
@@ -220,21 +221,23 @@ int main(int argc, char* const argv[])
   {
     using namespace workshop::boost_spirit::app;
 
-    Catch::Clara::CommandLine<ConfigData> cmdLine;
+    ConfigData configData{};
 
-    cmdLine["-h"]["--help"]
-    .describe("display usage information")
-    .bind(&ConfigData::showHelp);
-    cmdLine["-i"]["--input-file"]
-    .describe("path to file to be converted\n"
-              "if the extension is .ini a input-file.json is created\n"
-              "if the extension is .json a input-file.ini is created")
-    .bind(&ConfigData::inputFile, "inputFile");
-
-    cmdLine.setThrowOnUnrecognisedTokens(true);
-
-    ConfigData configData;
-    cmdLine.parseInto(Catch::Clara::argsToVector(argc, argv), configData);
+    auto cmdLine
+        = clara::Opt(configData.showHelp, "help")
+        ["-h"]["--help"]
+        ("display usage information")
+        | clara::Opt(configData.showHelp, "path to file to be converted")
+        ["-i"]["--input-file"]
+        ("if the extension is .ini a input-file.json is created\n"
+         "if the extension is .json a input-file.ini is created")
+        ;
+    auto parseResult = cmdLine.parse(clara::Args{argc, argv});
+    if(!parseResult)
+    {
+        std::cout << "\ncould not parse command line\n"
+                  << parseResult.errorMessage() << '\n';
+    }
 
     if(!configData.inputFile.empty())
     {
@@ -258,16 +261,16 @@ int main(int argc, char* const argv[])
       }
       else
       {
-        cmdLine.optUsage(std::cout);
+        std::cout << '\n' << cmdLine << '\n';
       }
     }
     else if(configData.showHelp)
     {
-      cmdLine.optUsage(std::cout);
+      std::cout << '\n' << cmdLine << '\n';
     }
     else
     {
-      cmdLine.optUsage(std::cout);
+      std::cout << '\n' << cmdLine << '\n';
     }
   }
   catch(const std::exception& e)
