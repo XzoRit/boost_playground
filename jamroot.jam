@@ -16,6 +16,7 @@ build-project coroutine     ;
 build-project di            ;
 build-project exception     ;
 build-project hana          ;
+build-project hof           ;
 build-project mock          ;
 build-project property_tree ;
 build-project outcome       ;
