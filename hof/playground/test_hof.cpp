@@ -1,6 +1,10 @@
 #include <boost/hof/lift.hpp>
 #include <boost/hof/function.hpp>
 #include <boost/hof/pipable.hpp>
+#include <boost/hof/flow.hpp>
+#include <boost/hof/infix.hpp>
+#include <boost/hof/partial.hpp>
+#include <boost/hof/compose.hpp>
 #include <algorithm>
 #include <vector>
 #include <iterator>
@@ -40,6 +44,10 @@ namespace
     BOOST_HOF_STATIC_FUNCTION(sum) = sum_functor{};
 
     BOOST_HOF_STATIC_FUNCTION(sum_pipe) = hof::pipable(sum_functor{});
+
+    BOOST_HOF_STATIC_FUNCTION(sum_infix) = hof::infix(sum_functor{});
+
+    BOOST_HOF_STATIC_LAMBDA_FUNCTION(sum_lamb) = [](auto a, auto b) { return a + b; };
 }
 
 BOOST_AUTO_TEST_SUITE(boost_hof)
@@ -74,8 +82,34 @@ BOOST_AUTO_TEST_CASE(static_function)
 
 BOOST_AUTO_TEST_CASE(pipeable_sum)
 {
-    const auto a = 1 | sum_pipe(22);
-    BOOST_TEST(a == 23);
+    const auto a = 1 | sum_pipe(22) | sum_pipe(333);
+    BOOST_TEST(a == 356);
+}
+
+BOOST_AUTO_TEST_CASE(flow_sum)
+{
+    const auto a = hof::flow(sum_pipe(22), sum_pipe(333))(1);
+    BOOST_TEST(a == 356);
+}
+
+BOOST_AUTO_TEST_CASE(infix_sum)
+{
+    const auto a = 1 <sum_infix> 22 <sum_infix> 333;
+    BOOST_TEST(a == 356);
+}
+
+BOOST_AUTO_TEST_CASE(compose_partial_sum)
+{
+    const auto a = hof::partial(sum)(1);
+    const auto b = hof::compose(a, a);
+    const auto c = b(1);
+    BOOST_TEST(c == 3);
+}
+
+BOOST_AUTO_TEST_CASE(lambda_function)
+{
+    const auto a = accumulate(begin(v), end(v), 0, sum_lamb);
+    BOOST_TEST(a == 356);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
