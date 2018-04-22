@@ -1,8 +1,11 @@
-#include <boost/test/unit_test.hpp>
+#include <boost/hof/lift.hpp>
+#include <boost/hof/function.hpp>
 #include <algorithm>
 #include <vector>
 #include <iterator>
 #include <numeric>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace std;
 namespace utf = boost::unit_test;
@@ -15,8 +18,8 @@ namespace
         return a + b;
     }
 
-    template<class T>
-    T sum_template_func(T a, T b)
+    template<class A, class B>
+    auto sum_template_func(A a, B b)
     {
         return a + b;
     }
@@ -24,19 +27,21 @@ namespace
     struct sum_functor
     {
         template<class T>
-        T operator()(T a, T b) const
+        auto operator()(T a, T b) const
             {
                 return a + b;
             }
     };
+
+    BOOST_HOF_STATIC_FUNCTION(sum) = sum_functor{};
 }
 
 BOOST_AUTO_TEST_SUITE(hof)
 
+const vector<int> v = {1, 22, 333};
+
 BOOST_AUTO_TEST_CASE(sum_func)
 {
-    const vector<int> v = {1, 22, 333};
-
     auto a = accumulate(begin(v), end(v), 0, sum_free_func);
     BOOST_TEST(a == 356);
 
@@ -46,6 +51,18 @@ BOOST_AUTO_TEST_CASE(sum_func)
 
     const auto sum_obj = sum_functor{};
     a = accumulate(begin(v), end(v), 0, sum_obj);
+    BOOST_TEST(a == 356);
+}
+
+BOOST_AUTO_TEST_CASE(lift)
+{
+    const auto a = accumulate(begin(v), end(v), 0, BOOST_HOF_LIFT(sum_template_func));
+    BOOST_TEST(a == 356);
+}
+
+BOOST_AUTO_TEST_CASE(static_function)
+{
+    const auto a = accumulate(begin(v), end(v), 0, sum);
     BOOST_TEST(a == 356);
 }
 
