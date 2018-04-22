@@ -1,5 +1,6 @@
 #include <boost/hof/lift.hpp>
 #include <boost/hof/function.hpp>
+#include <boost/hof/pipable.hpp>
 #include <algorithm>
 #include <vector>
 #include <iterator>
@@ -8,6 +9,9 @@
 #include <boost/test/unit_test.hpp>
 
 using namespace std;
+
+namespace hof = boost::hof;
+
 namespace utf = boost::unit_test;
 namespace tt  = boost::test_tools;
 
@@ -34,9 +38,11 @@ namespace
     };
 
     BOOST_HOF_STATIC_FUNCTION(sum) = sum_functor{};
+
+    BOOST_HOF_STATIC_FUNCTION(sum_pipe) = hof::pipable(sum_functor{});
 }
 
-BOOST_AUTO_TEST_SUITE(hof)
+BOOST_AUTO_TEST_SUITE(boost_hof)
 
 const vector<int> v = {1, 22, 333};
 
@@ -64,6 +70,12 @@ BOOST_AUTO_TEST_CASE(static_function)
 {
     const auto a = accumulate(begin(v), end(v), 0, sum);
     BOOST_TEST(a == 356);
+}
+
+BOOST_AUTO_TEST_CASE(pipeable_sum)
+{
+    const auto a = 1 | sum_pipe(22);
+    BOOST_TEST(a == 23);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
