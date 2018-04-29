@@ -5,14 +5,20 @@
 #include <boost/hof/infix.hpp>
 #include <boost/hof/partial.hpp>
 #include <boost/hof/compose.hpp>
+#include <boost/fusion/adapted/std_tuple.hpp>
+#include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <algorithm>
 #include <vector>
 #include <iterator>
+#include <iostream>
 #include <numeric>
+#include <tuple>
 
 #include <boost/test/unit_test.hpp>
 
 using namespace std;
+
+namespace fus = boost::fusion;
 
 namespace hof = boost::hof;
 
@@ -48,11 +54,44 @@ namespace
     BOOST_HOF_STATIC_FUNCTION(sum_infix) = hof::infix(sum_functor{});
 
     BOOST_HOF_STATIC_LAMBDA_FUNCTION(sum_lamb) = [](auto a, auto b) { return a + b; };
+
+    namespace adl
+    {
+        using std::begin;
+
+        template<class Range>
+        auto adl_begin(Range&& r) BOOST_HOF_RETURNS(begin(r));
+    }
+
+    BOOST_HOF_STATIC_LAMBDA_FUNCTION(print) = hof::first_of(
+        [](auto& str, const auto& a) -> decltype(str << a)
+        {
+            str << a << ' ';
+            return str;
+        },
+        [](auto& str, const auto& range) -> decltype(str << *adl::adl_begin(range))
+        {
+            str << "{ ";
+            for(const auto& a : range) str << a << ' ';
+            str << '}';
+            return str;
+        },
+        [](auto& str, const auto& tuple) -> decltype(auto)
+        {
+            str << "< ";
+            fus::for_each(tuple, [&str](const auto& a){ str << a << ' '; });
+            // I dont know why this does not work
+            // apply([&str](const auto& a) mutable -> decltype(auto) { str << a << ' '; }, tuple);
+            str << '>';
+            return str;
+        });
 }
 
 BOOST_AUTO_TEST_SUITE(boost_hof)
 
 const vector<int> v = {1, 22, 333};
+
+BOOST_AUTO_TEST_SUITE(summing)
 
 BOOST_AUTO_TEST_CASE(sum_func)
 {
@@ -111,5 +150,35 @@ BOOST_AUTO_TEST_CASE(lambda_function)
     const auto a = accumulate(begin(v), end(v), 0, sum_lamb);
     BOOST_TEST(a == 356);
 }
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(printing)
+
+BOOST_AUTO_TEST_CASE(print_overloading)
+{
+    {
+        stringstream str;
+
+        print(str, 1);
+        print(str, 22);
+        print(str, 333);
+        BOOST_TEST(str.str() == string("1 22 333 "));
+    }
+    {
+        stringstream str;
+
+        print(str, v);
+        BOOST_TEST(str.str() == string("{ 1 22 333 }"));
+    }
+    {
+        stringstream str;
+
+        print(str, make_tuple(1, 22, 333));
+        BOOST_TEST(str.str() == string("< 1 22 333 >"));
+    }
+}
+
+BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE_END()
