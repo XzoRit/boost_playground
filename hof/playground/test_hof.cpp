@@ -5,6 +5,7 @@
 #include <boost/hof/infix.hpp>
 #include <boost/hof/partial.hpp>
 #include <boost/hof/compose.hpp>
+#include <boost/hof/fix.hpp>
 #include <boost/fusion/adapted/std_tuple.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <algorithm>
@@ -63,33 +64,33 @@ namespace
         auto adl_begin(Range&& r) BOOST_HOF_RETURNS(begin(r));
     }
 
-    BOOST_HOF_STATIC_LAMBDA_FUNCTION(print) = hof::first_of(
-        [](auto& str, const auto& a) -> decltype(str << a)
-        {
-            str << a << ' ';
-            return str;
-        },
-        [](auto& str, const auto& range) -> decltype(str << *adl::adl_begin(range))
-        {
-            str << "{ ";
-            for(const auto& a : range) str << a << ' ';
-            str << '}';
-            return str;
-        },
-        [](auto& str, const auto& tuple) -> decltype(auto)
-        {
-            str << "< ";
-            fus::for_each(tuple, [&str](const auto& a){ str << a << ' '; });
-            // I dont know why this does not work
-            // apply([&str](const auto& a) mutable -> decltype(auto) { str << a << ' '; }, tuple);
-            str << '>';
-            return str;
-        });
+    BOOST_HOF_STATIC_LAMBDA_FUNCTION(print) =
+        hof::fix(
+            hof::first_of(
+                [](auto, auto& str, const auto& a) -> decltype(str << a)
+                {
+                    str << a << ' ';
+                    return str;
+                },
+                [](auto self, auto& str, const auto& range) -> decltype(self(str, *adl::adl_begin(range)))
+                {
+                    str << "{ ";
+                    for(const auto& a : range) self(str, a);
+                    str << '}';
+                    return str;
+                },
+                [](auto self, auto& str, const auto& tuple) -> decltype(auto)
+                {
+                    str << "< ";
+                    fus::for_each(tuple, [&str, self](const auto& a){ self(str, a); });
+                    str << '>';
+                    return str;
+                }));
 }
 
 BOOST_AUTO_TEST_SUITE(boost_hof)
 
-const vector<int> v = {1, 22, 333};
+const vector v = {1, 22, 333};
 
 BOOST_AUTO_TEST_SUITE(summing)
 
@@ -155,7 +156,9 @@ BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(printing)
 
-BOOST_AUTO_TEST_CASE(print_overloading)
+const auto t = make_tuple(1, 22, 333);
+
+BOOST_AUTO_TEST_CASE(overloading)
 {
     {
         stringstream str;
@@ -174,9 +177,17 @@ BOOST_AUTO_TEST_CASE(print_overloading)
     {
         stringstream str;
 
-        print(str, make_tuple(1, 22, 333));
+        print(str, t);
         BOOST_TEST(str.str() == string("< 1 22 333 >"));
     }
+}
+
+BOOST_AUTO_TEST_CASE(recursive)
+{
+    stringstream str;
+
+    print(str, make_tuple(4444, v, t));
+    BOOST_TEST(str.str() == string("< 4444 { 1 22 333 }< 1 22 333 >>"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
