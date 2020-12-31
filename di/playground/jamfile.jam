@@ -4,8 +4,7 @@ local install_folder = $(build_folder)/bin ;
 
 exe di_playground
     : main.cpp
-    : <include>../../../boost_di/include
-    : <cxxflags>-std=c++14
+    : <include>../boost_ext_di/include
     ;
     
 install install_di_playground

@@ -5,7 +5,7 @@ path-constant build_folder
 project
     : default-build debug
     : build-dir $(build_folder)
-    : requirements <cxxflags>-std=c++1z
+    : requirements <cxxflags>-std=c++2a
       <warnings>all
       <warnings-as-errors>on
     ;

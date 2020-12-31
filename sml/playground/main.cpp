@@ -1,38 +1,51 @@
 #include <boost/sml.hpp>
-#include <typeinfo>
+
 #include <iostream>
 #include <stdio.h>
+#include <string_view>
 
 namespace sml = boost::sml;
+
+template <class T>
+[[nodiscard]] constexpr auto type_name() -> const char*
+{
+#if defined(_MSC_VER) and not defined(__clang__)
+    return {&__FUNCSIG__[120], sizeof(__FUNCSIG__) - 128};
+#elif defined(__clang__)
+    return std::string_view{&__PRETTY_FUNCTION__[29], sizeof(__PRETTY_FUNCTION__) - 72}.data();
+#elif defined(__GNUC__)
+    return {&__PRETTY_FUNCTION__[85], sizeof(__PRETTY_FUNCTION__) - 136};
+#endif
+}
 
 struct PrintfLogger
 {
     template <class SM, class TEvent>
     void log_process_event(const TEvent&)
     {
-        printf("[%s][process_event] %s\n", typeid(SM).name(), typeid(TEvent).name());
+        printf("[%s][process_event] %s\n", type_name<SM>(), type_name<TEvent>());
     }
 
     template <class SM, class TGuard, class TEvent>
     void log_guard(const TGuard&, const TEvent&, bool result)
     {
-        printf("[%s][guard] %s %s %s\n", typeid(SM).name(), typeid(TGuard).name(),
-               typeid(TEvent).name(),
+        printf("[%s][guard] %s %s %s\n",
+               type_name<SM>(),
+               type_name<TGuard>(),
+               type_name<TEvent>(),
                (result ? "[OK]" : "[Reject]"));
     }
 
     template <class SM, class TAction, class TEvent>
     void log_action(const TAction&, const TEvent&)
     {
-        printf("[%s][action] %s %s\n", typeid(SM).name(), typeid(TAction).name(),
-               typeid(TEvent).name());
+        printf("[%s][action] %s %s\n", type_name<SM>(), type_name<TAction>(), type_name<TEvent>());
     }
 
     template <class SM, class TSrcState, class TDstState>
     void log_state_change(const TSrcState& src, const TDstState& dst)
     {
-        printf("[%s][transition] %s -> %s\n", typeid(SM).name(), src.c_str(),
-               dst.c_str());
+        printf("[%s][transition] %s -> %s\n", type_name<SM>(), src.c_str(), dst.c_str());
     }
 };
 
@@ -67,7 +80,7 @@ struct EntryAction
 {
     void operator()()
     {
-        std::cout << typeid(T).name() << " entry action\n";
+        std::cout << type_name<T>() << " entry action\n";
     }
 };
 
@@ -76,7 +89,7 @@ struct ExitAction
 {
     void operator()()
     {
-        std::cout << typeid(T).name() << " exit action\n";
+        std::cout << type_name<T>() << " exit action\n";
     }
 };
 
@@ -84,22 +97,20 @@ struct Visible
 {
     auto operator()() const
     {
-        using namespace sml;
-        return
-            make_transition_table
-            (
-                *state<Idle> + on_entry<_> / EntryAction<Idle>{}
-                ,state<Idle> + on_exit <_> / ExitAction <Idle>{}
-                ,state<Idle> + event<Start> / sendStart{} = state<Starting>
+        return sml::make_transition_table(*sml::state<Idle> + sml::on_entry<sml::_> / EntryAction<Idle>{},
+                                          sml::state<Idle> + sml::on_exit<sml::_> / ExitAction<Idle>{},
+                                          sml::state<Idle> + sml::event<Start> / sendStart{} = sml::state<Starting>
 
-                ,state<Starting> + on_entry<_> / EntryAction<Starting>{}
-                ,state<Starting> + on_exit <_> / ExitAction <Starting>{}
-                ,state<Starting> + event<Run> / sendRunning{} = state<Running>
+                                          ,
+                                          sml::state<Starting> + sml::on_entry<sml::_> / EntryAction<Starting>{},
+                                          sml::state<Starting> + sml::on_exit<sml::_> / ExitAction<Starting>{},
+                                          sml::state<Starting> + sml::event<Run> / sendRunning{} = sml::state<Running>
 
-                ,state<Running> + on_entry<_> / EntryAction<Running>{}
-                ,state<Running> + on_exit <_> / ExitAction <Running>{}
-                ,state<Running> + event<Finished> / sendFinished{} = state<Idle>
-            );
+                                          ,
+                                          sml::state<Running> + sml::on_entry<sml::_> / EntryAction<Running>{},
+                                          sml::state<Running> + sml::on_exit<sml::_> / ExitAction<Running>{},
+                                          sml::state<Running> + sml::event<Finished> / sendFinished{} =
+                                              sml::state<Idle>);
     }
 };
 
@@ -107,19 +118,15 @@ struct Controller
 {
     auto operator()() const
     {
-        using namespace sml;
-        return
-            make_transition_table
-            (
-                *state<Hidden>  + on_entry<_> / EntryAction<Hidden>{}
-                ,state<Hidden>  + on_exit <_> / ExitAction <Hidden>{}
-                ,state<Hidden>  + event<Show>  = state<Visible>
-                ,state<Hidden>  + event<Start> = state<Starting>
+        return sml::make_transition_table(*sml::state<Hidden> + sml::on_entry<sml::_> / EntryAction<Hidden>{},
+                                          sml::state<Hidden> + sml::on_exit<sml::_> / ExitAction<Hidden>{},
+                                          sml::state<Hidden> + sml::event<Show> = sml::state<Visible>,
+                                          sml::state<Hidden> + sml::event<Start> = sml::state<Starting>
 
-                ,state<Visible> + on_entry<_> / EntryAction<Visible>{}
-                ,state<Visible> + on_exit <_> / ExitAction <Visible>{}
-                ,state<Visible> + event<Hide> = state<Hidden>
-            );
+                                          ,
+                                          sml::state<Visible> + sml::on_entry<sml::_> / EntryAction<Visible>{},
+                                          sml::state<Visible> + sml::on_exit<sml::_> / ExitAction<Visible>{},
+                                          sml::state<Visible> + sml::event<Hide> = sml::state<Hidden>);
     }
 };
 
@@ -128,45 +135,42 @@ struct Controller
 template <class T>
 void dump_transition() noexcept
 {
-    auto src_state = std::string{sml::aux::string<typename T::src_state>{} .c_str()};
-    auto dst_state = std::string{sml::aux::string<typename T::dst_state>{} .c_str()};
-    if(dst_state == "X")
+    auto src_state = type_name<typename T::src_state>();
+    auto dst_state = type_name<typename T::dst_state>();
+    if (std::string{dst_state} == "X")
     {
         dst_state = "[*]";
     }
 
-    if(T::initial)
+    if (T::initial)
     {
         std::cout << "[*] --> " << src_state << std::endl;
     }
 
     std::cout << src_state << " --> " << dst_state;
 
-    const auto has_event =
-        !sml::aux::is_same<typename T::event, sml::anonymous>::value;
-    const auto has_guard =
-        !sml::aux::is_same<typename T::guard, sml::front::always>::value;
-    const auto has_action =
-        !sml::aux::is_same<typename T::action, sml::front::none>::value;
+    const auto has_event = !sml::aux::is_same<typename T::event, sml::anonymous>::value;
+    const auto has_guard = !sml::aux::is_same<typename T::guard, sml::front::always>::value;
+    const auto has_action = !sml::aux::is_same<typename T::action, sml::front::none>::value;
 
-    if(has_event || has_guard || has_action)
+    if (has_event || has_guard || has_action)
     {
         std::cout << " :";
     }
 
-    if(has_event)
+    if (has_event)
     {
-        std::cout << " " << typeid(typename T::event).name();
+        std::cout << " " << type_name<typename T::event>();
     }
 
-    if(has_guard)
+    if (has_guard)
     {
-        std::cout << " [" << typeid(typename T::guard).name() << "]";
+        std::cout << " [" << type_name<typename T::guard>() << "]";
     }
 
-    if(has_action)
+    if (has_action)
     {
-        std::cout << " / " << typeid(typename T::action).name();
+        std::cout << " / " << type_name<typename T::action>();
     }
 
     std::cout << std::endl;
@@ -189,60 +193,58 @@ void dump(const SM&) noexcept
 
 int main()
 {
-    using namespace sml;
     PrintfLogger l;
-    sm<Controller, logger<PrintfLogger>> sm{l};
+    sml::sm<Controller, sml::logger<PrintfLogger>> sm{l};
     dump(sm);
 
-    assert(sm.is<decltype(state<Controller>)>(state<Hidden>));
-    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Hidden>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Idle>));
 
     sm.process_event(Show{});
-    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Visible>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Idle>));
 
     sm.process_event(Start{});
-    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    assert(sm.is<decltype(state<Visible>)>(state<Starting>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Visible>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Starting>));
 
     sm.process_event(Run{});
-    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    assert(sm.is<decltype(state<Visible>)>(state<Running>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Visible>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Running>));
 
     sm.process_event(Finished{});
-    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Visible>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Idle>));
 
     sm.process_event(Hide{});
-    assert(sm.is<decltype(state<Controller>)>(state<Hidden>));
-    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Hidden>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Idle>));
 
     sm.process_event(Show{});
-    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Visible>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Idle>));
 
     sm.process_event(Start{});
-    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    assert(sm.is<decltype(state<Visible>)>(state<Starting>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Visible>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Starting>));
 
     sm.process_event(Run{});
-    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    assert(sm.is<decltype(state<Visible>)>(state<Running>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Visible>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Running>));
 
     sm.process_event(Hide{});
-    assert(sm.is<decltype(state<Controller>)>(state<Hidden>));
-    assert(sm.is<decltype(state<Visible>)>(state<Running>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Hidden>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Running>));
 
     sm.process_event(Show{});
-    assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Visible>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Idle>));
 
     sm.process_event(Hide{});
-    assert(sm.is<decltype(state<Controller>)>(state<Hidden>));
-    assert(sm.is<decltype(state<Visible>)>(state<Idle>));
+    assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Hidden>));
+    assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Idle>));
 
     sm.process_event(Start{});
-    // assert(sm.is<decltype(state<Controller>)>(state<Visible>));
-    // assert(sm.is<decltype(state<Visible>)>(state<Idle>));
-
+    // assert(sm.is<decltype(sml::state<Controller>)>(sml::state<Visible>));
+    // assert(sm.is<decltype(sml::state<Visible>)>(sml::state<Idle>));
 }

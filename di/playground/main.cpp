@@ -84,8 +84,9 @@ private:
 
 class iclient
 {
-public:
+  public:
     virtual void process() = 0;
+    virtual ~iclient() = default;
 };
 
 class user : public iclient
