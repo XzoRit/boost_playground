@@ -5,6 +5,8 @@ project spirit
     : requirements
       <toolset>darwin:<cxxflags>-isystem$(catch_include_folder)
       <toolset>darwin:<cxxflags>-isystem$(clara_include_folder)
+      <toolset>clang:<cxxflags>-isystem$(catch_include_folder)
+      <toolset>clang:<cxxflags>-isystem$(clara_include_folder)
     ;
 
 build-project frame ;
