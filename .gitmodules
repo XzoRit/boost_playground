@@ -7,3 +7,6 @@
 [submodule "sml/boost_ext_sml"]
 	path = sml/boost_ext_sml
 	url = https://github.com/boost-ext/sml.git
+[submodule "mock/turtle"]
+	path = mock/turtle
+	url = https://github.com/mat007/turtle.git

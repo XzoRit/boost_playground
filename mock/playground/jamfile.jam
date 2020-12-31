@@ -4,7 +4,7 @@ boost.use-project ;
 
 exe mock_playground
     : main.cpp mock.cpp
-    : <include>../../../boost_mock/turtle/include
+    : <include>../turtle/include
       <use>/boost//headers
       <warnings-as-errors>off
     ;
