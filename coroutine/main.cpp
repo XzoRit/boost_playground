@@ -1,6 +1,8 @@
 #define BOOST_COROUTINES_NO_DEPRECATION_WARNING
 #include <boost/coroutine/all.hpp>
 #include <boost/bind.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
 #include <iostream>
 #include <functional>
 #include <vector>
