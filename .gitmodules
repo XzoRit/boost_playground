@@ -1,3 +1,9 @@
 [submodule "spirit/Catch2"]
 	path = spirit/Catch2
 	url = https://github.com/catchorg/Catch2.git
+[submodule "di/boost_ext_di"]
+	path = di/boost_ext_di
+	url = https://github.com/boost-ext/di.git
+[submodule "sml/boost_ext_sml"]
+	path = sml/boost_ext_sml
+	url = https://github.com/boost-ext/sml.git
