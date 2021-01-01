@@ -9,5 +9,6 @@ run [ glob test_*.cpp ] main.cpp
     :
     : <use>/boost//headers
       <library>/boost//system
+      <linkflags>-pthread
     : test_asio
     ;
