@@ -1,0 +1,24 @@
+import boost ;
+
+boost.use-project ;
+
+constant sources
+    : [ glob *.cpp ]
+    ;
+
+exe leaf_app
+    : $(sources)
+    : <library>/lib//read_file
+      
+    ;
+
+import testing
+    ;
+
+unit-test run_leaf_app
+    : leaf_app
+    : <testing.arg>"/usr/include/err.h"
+    ;
+
+always run_leaf_app
+    ;

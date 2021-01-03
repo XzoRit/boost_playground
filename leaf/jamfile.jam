@@ -1,0 +1,7 @@
+build-project app ;
+
+build-project lib ;
+
+use-project /lib
+    : lib
+    ;

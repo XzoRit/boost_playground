@@ -1,0 +1,22 @@
+import boost ;
+
+boost.use-project ;
+
+import testing ;
+
+lib read_file
+    : read_file.cpp
+    : <use>/boost//headers
+      <include>.
+    :
+    : <use>/boost//headers
+      <include>.
+    ;
+
+run [ glob test_*.cpp ] test_main.cpp
+    : <testing.arg>"--log_level=success" "--log_sink=stdout" "--color_output=false"
+    :
+    : <use>/boost//headers
+      <library>read_file
+    : test_read_file
+    ;
