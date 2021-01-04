@@ -6,6 +6,7 @@
 
 #include <cerrno>
 #include <cstdio>
+#include <filesystem>
 #include <memory>
 #include <ostream>
 #include <sstream>
@@ -60,8 +61,9 @@ BOOST_AUTO_TEST_CASE(invalid)
 
 BOOST_AUTO_TEST_SUITE_END()
 
-const char* valid_file{"/usr/include/errno.h"};
-const int valid_file_size{1832};
+const std::filesystem::path valid_file_path{std::filesystem::temp_directory_path() / "hello.txt"};
+const char* valid_file{valid_file_path.c_str()};
+const int valid_file_size{7};
 
 BOOST_AUTO_TEST_SUITE(file_open)
 

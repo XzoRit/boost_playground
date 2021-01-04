@@ -17,7 +17,7 @@ import testing
 
 unit-test run_leaf_app
     : leaf_app
-    : <testing.arg>"/usr/include/err.h"
+    : <testing.arg>"/tmp/hello.txt"
     ;
 
 always run_leaf_app
