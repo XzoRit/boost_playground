@@ -12,22 +12,22 @@ int main(int argc, const char* argv[])
 {
     return leaf::try_handle_all(
         [&]() -> leaf::result<int> {
-            BOOST_LEAF_AUTO(file_name, xzr::parse_command_line(argc, argv));
+            BOOST_LEAF_AUTO(file_name, xzr::error_code::parse_command_line(argc, argv));
 
             auto load = leaf::on_error(leaf::e_file_name{file_name});
 
-            BOOST_LEAF_AUTO(f, xzr::file_open(file_name));
+            BOOST_LEAF_AUTO(f, xzr::error_code::file_open(file_name));
 
-            BOOST_LEAF_AUTO(s, xzr::file_size(*f));
+            BOOST_LEAF_AUTO(s, xzr::error_code::file_size(*f));
 
             std::string buffer(1 + s, '\0');
-            BOOST_LEAF_CHECK(xzr::file_read(*f, &buffer[0], buffer.size() - 1));
+            BOOST_LEAF_CHECK(xzr::error_code::file_read(*f, &buffer[0], buffer.size() - 1));
 
-            BOOST_LEAF_CHECK(xzr::output_to(std::cout, buffer));
+            BOOST_LEAF_CHECK(xzr::error_code::output_to(std::cout, buffer));
 
             return 0;
         },
-        [](leaf::match<xzr::error_code, xzr::open_error>,
+        [](leaf::match<xzr::error_code::error_code, xzr::error_code::open_error>,
            leaf::match_value<leaf::e_errno, ENOENT>,
            leaf::e_file_name const& fn,
            const leaf::e_source_location& loc) {
@@ -39,7 +39,7 @@ int main(int argc, const char* argv[])
         // - an object of type error_code equal to open_error, and
         // - an object of type leaf::e_errno (regardless of its .value), and
         // - an object of type leaf::e_file_name.
-        [](leaf::match<xzr::error_code, xzr::open_error>,
+        [](leaf::match<xzr::error_code::error_code, xzr::error_code::open_error>,
            leaf::e_errno const& errn,
            leaf::e_file_name const& fn,
            const leaf::e_source_location& loc) {
@@ -51,7 +51,10 @@ int main(int argc, const char* argv[])
         // - an object of type error_code equal to any of size_error, read_error, eof_error, and
         // - an optional object of type leaf::e_errno (regardless of its .value), and
         // - an object of type leaf::e_file_name.
-        [](leaf::match<xzr::error_code, xzr::size_error, xzr::read_error, xzr::eof_error>,
+        [](leaf::match<xzr::error_code::error_code,
+                       xzr::error_code::size_error,
+                       xzr::error_code::read_error,
+                       xzr::error_code::eof_error>,
            leaf::e_errno const* errn,
            leaf::e_file_name const& fn,
            const leaf::e_source_location& loc) {
@@ -65,7 +68,7 @@ int main(int argc, const char* argv[])
         // This handler will be called if the error includes:
         // - an object of type error_code equal to output_error, and
         // - an object of type leaf::e_errno (regardless of its .value),
-        [](leaf::match<xzr::error_code, xzr::output_error>,
+        [](leaf::match<xzr::error_code::error_code, xzr::error_code::output_error>,
            leaf::e_errno const& errn,
            const leaf::e_source_location& loc) {
             std::cerr << "Output error, errno=" << errn << " - diagnosed at: " << loc << std::endl;
@@ -73,7 +76,8 @@ int main(int argc, const char* argv[])
         },
 
         // This handler will be called if we've got a bad_command_line
-        [](leaf::match<xzr::error_code, xzr::bad_command_line>, const leaf::e_source_location& loc) {
+        [](leaf::match<xzr::error_code::error_code, xzr::error_code::bad_command_line>,
+           const leaf::e_source_location& loc) {
             std::cout << "Bad command line argument - diagnosed at: " << loc << std::endl;
             return 5;
         },

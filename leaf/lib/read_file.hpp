@@ -5,7 +5,7 @@
 #include <ostream>
 #include <string>
 
-namespace xzr
+namespace xzr::error_code
 {
 enum error_code
 {

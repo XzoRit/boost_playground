@@ -4,7 +4,7 @@
 
 namespace leaf = boost::leaf;
 
-namespace xzr
+namespace xzr::error_code
 {
 leaf::result<char const*> parse_command_line(int argc, char const* argv[]) noexcept
 {
@@ -57,4 +57,4 @@ leaf::result<void> output_to(std::ostream& out, const std::string& txt) noexcept
         return BOOST_LEAF_NEW_ERROR(output_error, leaf::e_errno{errno});
     return {};
 }
-} // namespace xzr
+} // namespace xzr::error_code
