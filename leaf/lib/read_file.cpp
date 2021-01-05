@@ -58,3 +58,54 @@ leaf::result<void> output_to(std::ostream& out, const std::string& txt) noexcept
     return {};
 }
 } // namespace xzr::error_code
+namespace xzr::exception
+{
+char const* parse_command_line(int argc, char const* argv[])
+{
+    if (argc == 2)
+        return argv[1];
+    BOOST_LEAF_THROW_EXCEPTION(bad_command_line{});
+}
+
+std::shared_ptr<FILE> file_open(char const* file_name)
+{
+    if (FILE* f = fopen(file_name, "rb"))
+        return std::shared_ptr<FILE>(f, &fclose);
+    else
+        BOOST_LEAF_THROW_EXCEPTION(open_error{}, leaf::e_errno{errno});
+}
+
+int file_size(FILE& f)
+{
+    if (fseek(&f, 0, SEEK_END))
+        BOOST_LEAF_THROW_EXCEPTION(size_error{});
+
+    int s = ftell(&f);
+    if (s == -1L)
+        BOOST_LEAF_THROW_EXCEPTION(size_error{});
+
+    if (fseek(&f, 0, SEEK_SET))
+        BOOST_LEAF_THROW_EXCEPTION(size_error{});
+
+    return s;
+}
+
+void file_read(FILE& f, void* buf, int size)
+{
+    int n = fread(buf, 1, size, &f);
+
+    if (ferror(&f))
+        BOOST_LEAF_THROW_EXCEPTION(read_error{}, leaf::e_errno{errno});
+
+    if (n != size)
+        BOOST_LEAF_THROW_EXCEPTION(eof_error{});
+}
+
+void output_to(std::ostream& out, const std::string& txt)
+{
+    out << txt;
+    out.flush();
+    if (out.fail())
+        BOOST_LEAF_THROW_EXCEPTION(output_error{}, leaf::e_errno{errno});
+}
+} // namespace xzr::exception
