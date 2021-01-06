@@ -5,16 +5,31 @@
 #include <filesystem>
 #include <iostream>
 #include <string>
+#include <tuple>
 
 namespace leaf = boost::leaf;
 
 int main(int argc, const char* argv[])
 {
-    int app_ret_val_1 = leaf::try_handle_all(
+    auto unmatched_error_handlers{std::make_tuple(
+        [](const leaf::error_info& unmatched, const leaf::e_source_location& loc) {
+            std::cerr << "Unknown failure detected" << std::endl
+                      << "Cryptic diagnostic information follows" << std::endl
+                      << unmatched << " - diagnosed at: " << loc;
+            return 6;
+        },
+        [](const leaf::error_info& unmatched) {
+            std::cerr << "Unknown failure detected" << std::endl
+                      << "Cryptic diagnostic information follows" << std::endl
+                      << unmatched;
+            return 7;
+        })};
+
+    int app_ret_val_1{leaf::try_handle_all(
         [&]() -> leaf::result<int> {
             BOOST_LEAF_AUTO(file_name, xzr::error_code::parse_command_line(argc, argv));
 
-            auto load = leaf::on_error(leaf::e_file_name{file_name});
+            auto load{leaf::on_error(leaf::e_file_name{file_name})};
 
             BOOST_LEAF_AUTO(f, xzr::error_code::file_open(file_name));
 
@@ -62,27 +77,16 @@ int main(int argc, const char* argv[])
         },
         [](leaf::match<xzr::error_code::error_code, xzr::error_code::bad_command_line>,
            const leaf::e_source_location& loc) {
-            std::cout << "Bad command line argument - diagnosed at: " << loc << std::endl;
+            std::cerr << "Bad command line argument - diagnosed at: " << loc << std::endl;
             return 5;
         },
-        [](const leaf::error_info& unmatched, const leaf::e_source_location& loc) {
-            std::cerr << "Unknown failure detected" << std::endl
-                      << "Cryptic diagnostic information follows" << std::endl
-                      << unmatched << " - diagnosed at: " << loc;
-            return 6;
-        },
-        [](const leaf::error_info& unmatched) {
-            std::cerr << "Unknown failure detected" << std::endl
-                      << "Cryptic diagnostic information follows" << std::endl
-                      << unmatched;
-            return 7;
-        });
+        unmatched_error_handlers)};
 
-    int app_ret_val_2 = leaf::try_catch(
+    int app_ret_val_2{leaf::try_catch(
         [&] {
             const char* file_name{xzr::exception::parse_command_line(argc, argv)};
 
-            auto load = leaf::on_error(leaf::e_file_name{file_name});
+            auto load{leaf::on_error(leaf::e_file_name{file_name})};
 
             const auto f{xzr::exception::file_open(file_name)};
 
@@ -124,21 +128,10 @@ int main(int argc, const char* argv[])
             return 4;
         },
         [](xzr::exception::bad_command_line&, const leaf::e_source_location& loc) {
-            std::cout << "Bad command line argument - diagnosed at: " << loc << std::endl;
+            std::cerr << "Bad command line argument - diagnosed at: " << loc << std::endl;
             return 5;
         },
-        [](const leaf::error_info& unmatched, const leaf::e_source_location& loc) {
-            std::cerr << "Unknown failure detected" << std::endl
-                      << "Cryptic diagnostic information follows" << std::endl
-                      << unmatched << " - diagnosed at: " << loc;
-            return 6;
-        },
-        [](const leaf::error_info& unmatched) {
-            std::cerr << "Unknown failure detected" << std::endl
-                      << "Cryptic diagnostic information follows" << std::endl
-                      << unmatched;
-            return 7;
-        });
+        unmatched_error_handlers)};
 
     return app_ret_val_1 + app_ret_val_2;
 }
