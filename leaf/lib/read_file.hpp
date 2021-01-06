@@ -7,7 +7,7 @@
 #include <exception>
 #include <stdexcept>
 
-namespace xzr::error_code
+namespace xzr::error_enum
 {
 enum error_code
 {

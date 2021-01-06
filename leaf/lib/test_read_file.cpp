@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_SUITE(parse_command_line)
 BOOST_AUTO_TEST_CASE(valid)
 {
     const char* argv[] = {"first", "second"};
-    leaf::result<const char*> res = xzr::error_code::parse_command_line(2, argv);
+    leaf::result<const char*> res = xzr::error_enum::parse_command_line(2, argv);
 
     BOOST_REQUIRE(res);
     BOOST_CHECK_EQUAL(res.value(), "second");
@@ -49,8 +49,8 @@ BOOST_AUTO_TEST_CASE(invalid)
 {
     const char* err_str = "cmd_line_error ";
     const char* res = leaf::try_handle_all(
-        [] { return xzr::error_code::parse_command_line(1, nullptr); },
-        [err_str](leaf::match<xzr::error_code::error_code, xzr::error_code::bad_command_line>) { return err_str; },
+        [] { return xzr::error_enum::parse_command_line(1, nullptr); },
+        [err_str](leaf::match<xzr::error_enum::error_code, xzr::error_enum::bad_command_line>) { return err_str; },
         [](const leaf::error_info& no_match) {
             BOOST_TEST_INFO("unexpected error:" << no_match);
             return nullptr;
@@ -71,15 +71,15 @@ const char* invalid_file{""};
 
 BOOST_AUTO_TEST_CASE(valid)
 {
-    const leaf::result<std::shared_ptr<FILE>> res = xzr::error_code::file_open(valid_file);
+    const leaf::result<std::shared_ptr<FILE>> res = xzr::error_enum::file_open(valid_file);
     BOOST_REQUIRE(res);
 }
 
 BOOST_AUTO_TEST_CASE(invalid)
 {
     const std::shared_ptr<FILE> res =
-        leaf::try_handle_all([] { return xzr::error_code::file_open(invalid_file); },
-                             [](leaf::match<xzr::error_code::error_code, xzr::error_code::open_error>,
+        leaf::try_handle_all([] { return xzr::error_enum::file_open(invalid_file); },
+                             [](leaf::match<xzr::error_enum::error_code, xzr::error_enum::open_error>,
                                 leaf::match_value<leaf::e_errno, ENOENT>) { return nullptr; },
                              [](const leaf::error_info& no_match) {
                                  BOOST_TEST_INFO("unexpected error:" << no_match);
@@ -93,8 +93,8 @@ BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_CASE(file_size, *utf::depends_on("boost_leaf/file_to_string/file_open/valid"))
 {
-    std::shared_ptr<FILE> f{xzr::error_code::file_open(valid_file).value()};
-    leaf::result<int> size = xzr::error_code::file_size(*f);
+    std::shared_ptr<FILE> f{xzr::error_enum::file_open(valid_file).value()};
+    leaf::result<int> size = xzr::error_enum::file_size(*f);
 
     BOOST_REQUIRE(size);
     BOOST_CHECK_EQUAL(size.value(), valid_file_size);
@@ -105,8 +105,8 @@ BOOST_AUTO_TEST_CASE(file_read, *utf::depends_on("boost_leaf/file_to_string/file
     const std::string zeroed_buffer(1 + valid_file_size, '\0');
     std::string buffer{zeroed_buffer};
 
-    std::shared_ptr<FILE> f{xzr::error_code::file_open(valid_file).value()};
-    const leaf::result<void> res{xzr::error_code::file_read(*f, buffer.data(), buffer.size() - 1)};
+    std::shared_ptr<FILE> f{xzr::error_enum::file_open(valid_file).value()};
+    const leaf::result<void> res{xzr::error_enum::file_read(*f, buffer.data(), buffer.size() - 1)};
 
     BOOST_REQUIRE(res);
     BOOST_CHECK_NE(buffer, zeroed_buffer);
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE(output_to)
     const std::string txt{"Hello!"};
     std::ostringstream out{};
 
-    const leaf::result<void> res{xzr::error_code::output_to(out, txt)};
+    const leaf::result<void> res{xzr::error_enum::output_to(out, txt)};
 
     BOOST_REQUIRE(res);
     BOOST_CHECK_EQUAL(out.str(), txt);
