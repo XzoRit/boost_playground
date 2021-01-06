@@ -29,7 +29,7 @@ int main(int argc, const char* argv[])
         [&]() -> leaf::result<int> {
             BOOST_LEAF_AUTO(file_name, xzr::error_code::parse_command_line(argc, argv));
 
-            auto load{leaf::on_error(leaf::e_file_name{file_name})};
+            const auto load{leaf::on_error(leaf::e_file_name{file_name})};
 
             BOOST_LEAF_AUTO(f, xzr::error_code::file_open(file_name));
 
@@ -44,14 +44,14 @@ int main(int argc, const char* argv[])
         },
         [](leaf::match<xzr::error_code::error_code, xzr::error_code::open_error>,
            leaf::match_value<leaf::e_errno, ENOENT>,
-           leaf::e_file_name const& fn,
+           const leaf::e_file_name& fn,
            const leaf::e_source_location& loc) {
             std::cerr << "File not found: " << fn.value << " - diagnosed at: " << loc << std::endl;
             return 1;
         },
         [](leaf::match<xzr::error_code::error_code, xzr::error_code::open_error>,
-           leaf::e_errno const& errn,
-           leaf::e_file_name const& fn,
+           const leaf::e_errno& errn,
+           const leaf::e_file_name& fn,
            const leaf::e_source_location& loc) {
             std::cerr << "Failed to open " << fn.value << ", errno=" << errn << " - diagnosed at: " << loc << std::endl;
             return 2;
@@ -60,8 +60,8 @@ int main(int argc, const char* argv[])
                        xzr::error_code::size_error,
                        xzr::error_code::read_error,
                        xzr::error_code::eof_error>,
-           leaf::e_errno const* errn,
-           leaf::e_file_name const& fn,
+           const leaf::e_errno* errn,
+           const leaf::e_file_name& fn,
            const leaf::e_source_location& loc) {
             std::cerr << "Failed to access " << fn.value;
             if (errn)
@@ -70,7 +70,7 @@ int main(int argc, const char* argv[])
             return 3;
         },
         [](leaf::match<xzr::error_code::error_code, xzr::error_code::output_error>,
-           leaf::e_errno const& errn,
+           const leaf::e_errno& errn,
            const leaf::e_source_location& loc) {
             std::cerr << "Output error, errno=" << errn << " - diagnosed at: " << loc << std::endl;
             return 4;
@@ -86,7 +86,7 @@ int main(int argc, const char* argv[])
         [&] {
             const char* file_name{xzr::exception::parse_command_line(argc, argv)};
 
-            auto load{leaf::on_error(leaf::e_file_name{file_name})};
+            const auto load{leaf::on_error(leaf::e_file_name{file_name})};
 
             const auto f{xzr::exception::file_open(file_name)};
 
@@ -99,23 +99,23 @@ int main(int argc, const char* argv[])
 
             return 0;
         },
-        [](xzr::exception::open_error&,
+        [](const xzr::exception::open_error&,
            leaf::match_value<leaf::e_errno, ENOENT>,
-           leaf::e_file_name const& fn,
+           const leaf::e_file_name& fn,
            const leaf::e_source_location& loc) {
             std::cerr << "File not found: " << fn.value << " - diagnosed at: " << loc << std::endl;
             return 1;
         },
-        [](xzr::exception::open_error&,
-           leaf::e_errno const& errn,
-           leaf::e_file_name const& fn,
+        [](const xzr::exception::open_error&,
+           const leaf::e_errno& errn,
+           const leaf::e_file_name& fn,
            const leaf::e_source_location& loc) {
             std::cerr << "Failed to open " << fn.value << ", errno=" << errn << " - diagnosed at: " << loc << std::endl;
             return 2;
         },
-        [](xzr::exception::input_error&,
-           leaf::e_errno const* errn,
-           leaf::e_file_name const& fn,
+        [](const xzr::exception::input_error&,
+           const leaf::e_errno* errn,
+           const leaf::e_file_name& fn,
            const leaf::e_source_location& loc) {
             std::cerr << "Failed to access " << fn.value;
             if (errn)
@@ -123,11 +123,11 @@ int main(int argc, const char* argv[])
             std::cerr << " - diagnosed at: " << loc << std::endl;
             return 3;
         },
-        [](xzr::exception::output_error&, leaf::e_errno const& errn, const leaf::e_source_location& loc) {
+        [](const xzr::exception::output_error&, const leaf::e_errno& errn, const leaf::e_source_location& loc) {
             std::cerr << "Output error, errno=" << errn << " - diagnosed at: " << loc << std::endl;
             return 4;
         },
-        [](xzr::exception::bad_command_line&, const leaf::e_source_location& loc) {
+        [](const xzr::exception::bad_command_line&, const leaf::e_source_location& loc) {
             std::cerr << "Bad command line argument - diagnosed at: " << loc << std::endl;
             return 5;
         },
