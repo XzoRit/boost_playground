@@ -1,3 +1,5 @@
+#pragma once
+
 #include <boost/leaf.hpp>
 
 #include <cstdio>

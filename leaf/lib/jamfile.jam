@@ -5,7 +5,7 @@ boost.use-project ;
 import testing ;
 
 lib read_file
-    : read_file.cpp
+    : read_file.cpp try_call.cpp
     : <use>/boost//headers
       <include>.
     :
@@ -13,8 +13,8 @@ lib read_file
       <include>.
     ;
 
-run [ glob test_*.cpp ] test_main.cpp
-    : <testing.arg>"--log_level=success" "--log_sink=stdout" "--color_output=false"
+run [ glob test_*.cpp ]
+    : <testing.arg>"--log_level=error" "--log_sink=stdout" "--color_output=false"
     :
     : <use>/boost//headers
       <library>read_file
