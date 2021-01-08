@@ -12,7 +12,8 @@ constexpr inline boost::leaf::result<decltype(std::declval<ThrowingFunc>()())> t
 {
     using result_type = boost::leaf::result<decltype(std::declval<ThrowingFunc>()())>;
 
-    return boost::leaf::try_catch([&]() -> result_type { return throwing_func(); },
-                                  [](const std::exception&) -> result_type { return boost::leaf::new_error(); });
+    return boost::leaf::try_catch(
+        [&]() -> result_type { return throwing_func(); },
+        [](const boost::leaf::error_info&) -> result_type { return boost::leaf::new_error(); });
 }
 } // namespace xzr::error
