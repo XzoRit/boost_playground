@@ -56,10 +56,7 @@ int main(int argc, const char* argv[])
             std::cerr << "Failed to open " << fn.value << ", errno=" << errn << " - diagnosed at: " << loc << std::endl;
             return 2;
         },
-        [](leaf::match<xzr::error_enum::error_code,
-                       xzr::error_enum::size_error,
-                       xzr::error_enum::read_error,
-                       xzr::error_enum::eof_error>,
+        [](leaf::match<xzr::error_enum::error_code, xzr::error_enum::input_error>,
            const leaf::e_errno* errn,
            const leaf::e_file_name& fn,
            const leaf::e_source_location& loc) {

@@ -23,7 +23,7 @@ leaf::result<std::shared_ptr<FILE>> file_open(char const* file_name) noexcept
 
 leaf::result<int> file_size(FILE& f) noexcept
 {
-    const auto load{leaf::on_error([] { return leaf::e_errno{errno}; })};
+    const auto load{leaf::on_error(input_error, [] { return leaf::e_errno{errno}; })};
 
     if (fseek(&f, 0, SEEK_END))
         return BOOST_LEAF_NEW_ERROR(size_error);
@@ -36,10 +36,12 @@ leaf::result<int> file_size(FILE& f) noexcept
         return BOOST_LEAF_NEW_ERROR(size_error);
 
     return s;
-}
+} // namespace xzr::error_enum
 
 leaf::result<void> file_read(FILE& f, void* buf, int size) noexcept
 {
+    const auto load{leaf::on_error(input_error)};
+
     int n = fread(buf, 1, size, &f);
 
     if (ferror(&f))

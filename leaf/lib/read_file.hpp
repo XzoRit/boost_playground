@@ -15,6 +15,7 @@ enum error_code
 {
     bad_command_line = 1,
     open_error,
+    input_error,
     read_error,
     size_error,
     eof_error,
