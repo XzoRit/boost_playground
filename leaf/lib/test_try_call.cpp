@@ -58,4 +58,23 @@ BOOST_AUTO_TEST_CASE(no_std_exception_thrown)
 
 BOOST_AUTO_TEST_SUITE_END()
 
+BOOST_AUTO_TEST_SUITE(to_result)
+
+BOOST_AUTO_TEST_CASE(success_call)
+{
+    const auto res{xzr::error::exception_to_result([] { return ::divide<zero_argument>(4, 2); })};
+
+    BOOST_REQUIRE(res);
+    BOOST_CHECK_EQUAL(res.value(), 2);
+}
+
+BOOST_AUTO_TEST_CASE(std_exception_thrown)
+{
+    const auto res{xzr::error::exception_to_result([] { return ::divide<zero_argument>(4, 0); })};
+
+    BOOST_REQUIRE(!res);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
