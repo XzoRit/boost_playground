@@ -7,12 +7,12 @@ project
     : build-dir $(build_folder)
     : requirements <cxxstd>latest
       <warnings>all
-      <warnings-as-errors>on
     ;
 
 build-project asio          ;
 build-project b2            ;
 build-project coroutine     ;
+build-project describe      ;
 build-project di            ;
 build-project exception     ;
 build-project hana          ;
