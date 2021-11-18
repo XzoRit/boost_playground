@@ -1,0 +1,13 @@
+import boost ;
+
+boost.use-project ;
+
+import testing ;
+
+run [ glob test_*.cpp ]
+    : <testing.arg>"--color_output=false"
+    :
+    : <use>/boost//headers
+    : test_describe
+    :
+    ;
