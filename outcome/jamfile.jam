@@ -5,7 +5,7 @@ boost.use-project ;
 project
     :
     :
-    : requirements <cxxflags>-std=c++11
+    : requirements <cxxflags>-std=c++14
     ;
 
 import testing ;
