@@ -10,7 +10,8 @@ exe coroutine
       # but coroutine2 is written in c++11 and I want to write c++03
       # code so we disable warnings being treated as errors
     :
-    : <variant>debug ;
+    :
+    ;
 
 import testing ;
 
