@@ -9,5 +9,6 @@ AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false
 BreakConstructorInitializers: BeforeComma
+FixNamespaceComments: false
 PointerAlignment: Left
 ...
