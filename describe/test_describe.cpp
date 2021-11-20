@@ -4,8 +4,11 @@
 
 #include <ostream>
 #include <sstream>
+#include <stdexcept>
 
 using namespace boost::describe;
+using namespace boost::mp11;
+using namespace std::string_literals;
 
 namespace v1
 {
@@ -16,7 +19,7 @@ std::ostream& operator<<(std::ostream& os, T const& t)
 
     bool first = true;
 
-    boost::mp11::mp_for_each<Bd>([&](auto D) {
+    mp_for_each<Bd>([&](auto D) {
         if (!first)
         {
             os << ", ";
@@ -27,7 +30,7 @@ std::ostream& operator<<(std::ostream& os, T const& t)
         os << (B const&)t;
     });
 
-    boost::mp11::mp_for_each<Md>([&](auto D) {
+    mp_for_each<Md>([&](auto D) {
         if (!first)
         {
             os << ", ";
@@ -62,7 +65,7 @@ class Z : public X, private Y
 
     BOOST_DESCRIBE_CLASS(Z, (X, Y), (), (), (m1, m2))
 };
-} // namespace v1
+}
 
 namespace v2
 {
@@ -78,7 +81,7 @@ inline std::ostream& operator<<(std::ostream& os, const ostreamable<T>& o)
 
     os << "{ ";
 
-    boost::mp11::mp_for_each<Md>([&](auto D) { os << '.' << D.name << '=' << t.*D.pointer << ' '; });
+    mp_for_each<Md>([&](auto D) { os << '.' << D.name << '=' << t.*D.pointer << ' '; });
 
     os << "}";
 
@@ -106,7 +109,7 @@ class Z : public ostreamable<Z>
 
     BOOST_DESCRIBE_CLASS(Z, (), (), (), (m1, m2))
 };
-} // namespace v2
+}
 
 namespace v3
 {
@@ -119,7 +122,7 @@ std::ostream& operator<<(std::ostream& os, T const& t)
 
     bool first = true;
 
-    boost::mp11::mp_for_each<Bd>([&](auto D) {
+    mp_for_each<Bd>([&](auto D) {
         if (!first)
         {
             os << ", ";
@@ -130,7 +133,7 @@ std::ostream& operator<<(std::ostream& os, T const& t)
         os << (B const&)t;
     });
 
-    boost::mp11::mp_for_each<Md>([&](auto D) {
+    mp_for_each<Md>([&](auto D) {
         if (!first)
         {
             os << ", ";
@@ -143,7 +146,7 @@ std::ostream& operator<<(std::ostream& os, T const& t)
     os << "}";
     return os;
 }
-} // namespace skill
+}
 
 namespace lib_a
 {
@@ -155,7 +158,7 @@ struct X
 };
 
 BOOST_DESCRIBE_STRUCT(X, (), (m1))
-} // namespace lib_a
+}
 
 namespace lib_b
 {
@@ -167,7 +170,7 @@ struct Y
 };
 
 BOOST_DESCRIBE_STRUCT(Y, (), (m2))
-} // namespace lib_b
+}
 
 namespace lib_c
 {
@@ -178,8 +181,59 @@ class Z : public lib_a::X, private lib_b::Y
 
     BOOST_DESCRIBE_CLASS(Z, (lib_a::X, Y), (), (), (m1, m2))
 };
-} // namespace lib_c
-} // namespace v3
+}
+}
+
+namespace lib_enum
+{
+template <class E>
+std::string to_string(E e)
+{
+    std::string r{};
+
+    mp_for_each<describe_enumerators<E>>([&](auto D) mutable {
+        if (e == D.value)
+        {
+            if (!r.empty())
+                r += " or "s + D.name;
+            else
+                r = D.name;
+        }
+    });
+
+    if (r.empty())
+        return "unknown";
+    return r;
+}
+}
+
+namespace lib
+{
+enum c_enum
+{
+    v1 = 1,
+    v2 = 2,
+    v3 = 4
+};
+
+BOOST_DESCRIBE_ENUM(c_enum, v1, v2, v3)
+
+enum class cpp_enum
+{
+    v4 = 1,
+    v5 = 1, // to_string shall throw on ambiguities
+    v6 = 111
+};
+
+BOOST_DESCRIBE_ENUM(cpp_enum, v4, v5, v6)
+
+std::ostream& operator<<(std::ostream& str, cpp_enum e)
+{
+    str << lib_enum::to_string(e);
+
+    return str;
+}
+}
 
 BOOST_AUTO_TEST_SUITE(boost_describe)
 
@@ -226,6 +280,17 @@ BOOST_AUTO_TEST_CASE(ostream_with_using_declaration)
         str << v3::lib_c::Z{};
         BOOST_CHECK_EQUAL(str.str(), "{{.m1 = 1}, {.m2 = 2}, .m1 = 3, .m2 = 4}");
     }
+}
+
+BOOST_AUTO_TEST_CASE(enum_to_string)
+{
+    BOOST_CHECK_EQUAL(lib_enum::to_string(lib::v1), "v1");
+    BOOST_CHECK_EQUAL(lib_enum::to_string(lib::v2), "v2");
+    BOOST_CHECK_EQUAL(lib_enum::to_string(lib::v3), "v3");
+
+    BOOST_CHECK_EQUAL(lib_enum::to_string(lib::cpp_enum::v4), "v4 or v5");
+    BOOST_CHECK_EQUAL(lib_enum::to_string(lib::cpp_enum::v5), "v4 or v5");
+    BOOST_CHECK_EQUAL(lib_enum::to_string(lib::cpp_enum::v6), "v6");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
