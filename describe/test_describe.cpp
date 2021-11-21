@@ -2,6 +2,7 @@
 #include <boost/mp11.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <iomanip>
 #include <ostream>
 #include <sstream>
 #include <stdexcept>
@@ -205,6 +206,26 @@ std::string to_string(E e)
         return "unknown";
     return r;
 }
+
+template <class E>
+E to_enum(const char* name)
+{
+    E e{};
+    bool found{false};
+
+    mp_for_each<describe_enumerators<E>>([&](auto D) {
+        if (std::strcmp(D.name, name) == 0)
+        {
+            found = true;
+            e = D.value;
+        }
+    });
+
+    if (found)
+        return e;
+
+    throw std::invalid_argument{"invalid name: \""s + name + "\" for enum " + typeid(E).name()};
+}
 }
 
 namespace lib
@@ -221,7 +242,7 @@ BOOST_DESCRIBE_ENUM(c_enum, v1, v2, v3)
 enum class cpp_enum
 {
     v4 = 1,
-    v5 = 1, // to_string shall throw on ambiguities
+    v5 = 1,
     v6 = 111
 };
 
@@ -291,6 +312,20 @@ BOOST_AUTO_TEST_CASE(enum_to_string)
     BOOST_CHECK_EQUAL(lib_enum::to_string(lib::cpp_enum::v4), "v4 or v5");
     BOOST_CHECK_EQUAL(lib_enum::to_string(lib::cpp_enum::v5), "v4 or v5");
     BOOST_CHECK_EQUAL(lib_enum::to_string(lib::cpp_enum::v6), "v6");
+}
+
+BOOST_AUTO_TEST_CASE(string_to_enum)
+{
+    BOOST_CHECK_EQUAL(lib_enum::to_enum<lib::c_enum>("v1"), lib::v1);
+    BOOST_CHECK_EQUAL(lib_enum::to_enum<lib::c_enum>("v2"), lib::v2);
+    BOOST_CHECK_EQUAL(lib_enum::to_enum<lib::c_enum>("v3"), lib::v3);
+
+    BOOST_CHECK_EQUAL(lib_enum::to_enum<lib::cpp_enum>("v4"), lib::cpp_enum::v4);
+    BOOST_CHECK_EQUAL(lib_enum::to_enum<lib::cpp_enum>("v5"), lib::cpp_enum::v5);
+    BOOST_CHECK_EQUAL(lib_enum::to_enum<lib::cpp_enum>("v6"), lib::cpp_enum::v6);
+
+    BOOST_CHECK_THROW(lib_enum::to_enum<lib::c_enum>("nope"), std::invalid_argument);
+    BOOST_CHECK_THROW(lib_enum::to_enum<lib::cpp_enum>("nope"), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
